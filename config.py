@@ -1,6 +1,9 @@
 from typing import Text
 
 
+f_output_empty_block = False
+
+
 def format_block_name(name):
     # type: (Text) -> Text
     return "### " + name + "\n"

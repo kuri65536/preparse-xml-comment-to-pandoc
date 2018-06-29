@@ -181,8 +181,8 @@ def strip_indent(block):  # {{{1
 
 def is_empty(src):  # {{{1
     # type: (Text) -> bool
-    src = rex_white.sub("", src)
-    return len(src) < 1
+    ret = rex_white.sub("", src)
+    return len(ret) < 1
 
 
 class Parser(object):  # {{{1
@@ -207,16 +207,20 @@ class Parser(object):  # {{{1
 
     def flash_output(self):  # {{{1
         # type: () -> None
-        if len(self.block) > 0:
-            ret = strip_indent(self.block)
-            if is_empty(ret):
-                eror("block is empty: " + self.block_name)
-                ret = ""
-            elif len(self.block_name) > 0:
-                s = cfg.format_block_name(self.block_name)
-                self.fp.write(s)
-            self.fp.write(ret)
+        blk = self.block
         self.block = []
+        if len(blk) < 1:
+            return
+
+        ret = strip_indent(blk)
+        if is_empty(ret):
+            eror("block is empty: " + self.block_name)
+            if not cfg.f_output_empty_block:
+                return
+        if len(self.block_name) > 0:
+            s = cfg.format_block_name(self.block_name)
+            self.fp.write(s)
+        self.fp.write(ret)
 
     def enter_tag(self, tagname, attrs):  # {{{1
         # type: (Text, Dict[Text, Text]) -> None
@@ -298,6 +302,6 @@ def main(args):  # {{{1
     parser.fp.close()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # {{{1
     main(sys.argv[1:])
 # vi: ft=python:et:ts=4:nowrap:fdm=marker
