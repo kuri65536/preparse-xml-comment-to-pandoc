@@ -62,13 +62,9 @@ def extract_plain_and_xml_text(fname):  # {{{1
                 lin = determine_function_name(lin)
                 if len(lin) > 0:
                     yield "<block>{}</block>\n".format(lin)
-                n = determine_indent(block)
                 for i in block:
                     i = strip_comment(i)
-                    if len(i) > n:
-                        yield i[n:]
-                    else:
-                        yield i
+                    yield i
                 block = []
                 continue
             elif f:
@@ -133,18 +129,32 @@ def determine_function_name(src):  # {{{1
     return src
 
 
-def determine_indent(lines):  # {{{1
-    # type: (List[Text]) -> int
+def strip_indent(block):  # {{{1
+    # type: (List[Text]) -> Text
+    src = ''.join(block)
+    lines = src.splitlines()
     for line in lines:
         lin1 = strip_comment(line)
         if len(lin1.strip()) > 0:
             break
     else:
-        return 0
-    for n, ch in enumerate(lin1):
-        if ch != " ":
-            return n
-    return 0  # can't determine, reserve all text.
+        lin1 = ""
+
+    ind = 0  # can't determine, reserve all text.
+    if len(lin1) > 0:
+        for n, ch in enumerate(lin1):
+            if ch != " ":
+                ind = n
+                break
+
+    ret = ""
+    for line in lines:
+        if len(line) < ind:
+            ret += line
+        else:
+            ret += line[ind:]
+        ret += "\n"
+    return ret
 
 
 class Parser(object):  # {{{1
@@ -159,21 +169,34 @@ class Parser(object):  # {{{1
         parser.EndElementHandler = self.leave_tag
         parser.CharacterDataHandler = self.chardata
 
-        self.summary_name = ""
+        self.block_name = ""
         self.tag = ""
         self.tag_f = ""
+        self.block = []  # type: List[Text]
+
+    def flash_output(self):  # {{{1
+        # type: () -> None
+        if len(self.block) > 0:
+            ret = strip_indent(self.block)
+            if len(self.block_name) > 0:
+                self.fp.write("### " + self.block_name + "\n")
+            self.fp.write(ret)
+        self.block = []
 
     def enter_tag(self, tagname, attrs):  # {{{1
         # type: (Text, Dict[Text, Text]) -> None
         if tagname == "block":
             self.tag = tagname
         if tagname == "summary":
+            self.flash_output()
             self.tag = tagname
         if tagname == "file":
             self.tag_f = tagname
 
     def leave_tag(self, tagname):  # {{{1
         # type: (Text) -> None
+        if tagname == "file":
+            self.flash_output()
         if tagname == "block" and tagname == self.tag:
             self.tag = ""
         if tagname == "summary" and tagname == self.tag:
@@ -188,10 +211,11 @@ class Parser(object):  # {{{1
         debg(data)
         if self.tag in ("file", ):
             self.fp.write(data)
+            self.block.append(data)
         if self.tag in ("block", ):
-            self.fp.write("### " + data + "\n")
+            self.block_name = data
         if self.tag in ("summary", "remarks"):
-            self.fp.write(data)
+            self.block.append(data)
 
 
 def main(args):  # {{{1
