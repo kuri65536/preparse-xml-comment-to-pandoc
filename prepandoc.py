@@ -1,5 +1,5 @@
 #! /usr/bin/python3
-from logging import debug as debg
+from logging import debug as debg, error as eror
 import os
 import re
 import sys
@@ -13,6 +13,7 @@ import config as cfg
 
 Dict, IO, Iterator, List, Text, Tuple
 rex_comment = re.compile("^ *\/\/\/")
+rex_white = re.compile(r"\s*")
 
 
 def make_header(fp, ftop):  # {{{1
@@ -178,6 +179,12 @@ def strip_indent(block):  # {{{1
     return ret
 
 
+def is_empty(src):  # {{{1
+    # type: (Text) -> bool
+    src = rex_white.sub("", src)
+    return len(src) < 1
+
+
 class Parser(object):  # {{{1
     def __init__(self, parser, fname):  # {{{1
         # type: (expat.Parser, Text) -> None
@@ -185,6 +192,9 @@ class Parser(object):  # {{{1
             self.fp = open(fname, "w", encoding="utf-8")
         else:
             self.fp = fname
+        s = '<link href="{}" rel="stylesheet"></link>'.format(
+                "tools/swiss.css")
+        self.fp.write(s + "\n")
 
         parser.StartElementHandler = self.enter_tag
         parser.EndElementHandler = self.leave_tag
@@ -199,7 +209,10 @@ class Parser(object):  # {{{1
         # type: () -> None
         if len(self.block) > 0:
             ret = strip_indent(self.block)
-            if len(self.block_name) > 0:
+            if is_empty(ret):
+                eror("block is empty: " + self.block_name)
+                ret = ""
+            elif len(self.block_name) > 0:
                 s = cfg.format_block_name(self.block_name)
                 self.fp.write(s)
             self.fp.write(ret)
