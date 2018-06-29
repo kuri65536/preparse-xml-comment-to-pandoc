@@ -8,12 +8,14 @@ from typing import Dict, IO, Iterator, List, Text, Tuple
 from xml.parsers import expat  # type: ignore
 # from html import escape as htmlquote
 
+import config as cfg
+
 
 Dict, IO, Iterator, List, Text, Tuple
 rex_comment = re.compile("^ *\/\/\/")
 
 
-def make_header(fp, ftop):
+def make_header(fp, ftop):  # {{{1
     # type: (IO[Text], Text) -> Text
     all = "<all>\n"
     with open(ftop, "rt", encoding="utf-8") as fin:
@@ -22,12 +24,31 @@ def make_header(fp, ftop):
             fp.write(src)
             return src
 
-        all += out("<file>\n")
+        fname = filename_relative(ftop)
+        all += out('<file name="{}">\n'.format(fname))
         all += out("<summary>\n")
         all += out(fin.read() + "\n")
         all += out("</summary>\n")
         all += out("</file>\n")
     return all
+
+
+def filename_relative(path):  # {{{1
+    # type: (Text) -> Text
+    droot = os.path.abspath(__file__)  # tools/prepandoc.py
+    droot = os.path.dirname(droot)
+    droot = os.path.dirname(droot)     # .
+
+    path = os.path.abspath(path)
+    if path.startswith(droot):
+        path = path[len(droot):]
+    else:
+        path = os.path.realpath(path)
+        if path.startswith(droot):
+            path = path[len(droot):]
+    if path.startswith("/"):
+        path = path[1:]
+    return path
 
 
 def iter_sources(dname):  # {{{1
@@ -47,7 +68,7 @@ def iter_sources(dname):  # {{{1
 
 def extract_plain_and_xml_text(fname):  # {{{1
     # type: (Text) -> Iterator[Text]
-    yield "<file> <!-- {} -->\n".format(fname)
+    yield '<file name="{}"> '.format(fname)
     with open(fname, "rb") as fp:
         debg("parse {}...".format(fname))
         block = []  # type: List[Text]
@@ -179,7 +200,8 @@ class Parser(object):  # {{{1
         if len(self.block) > 0:
             ret = strip_indent(self.block)
             if len(self.block_name) > 0:
-                self.fp.write("### " + self.block_name + "\n")
+                s = cfg.format_block_name(self.block_name)
+                self.fp.write(s)
             self.fp.write(ret)
         self.block = []
 
@@ -192,19 +214,24 @@ class Parser(object):  # {{{1
             self.tag = tagname
         if tagname == "file":
             self.tag_f = tagname
+            name = attrs.get("name", "")
+            name = filename_relative(name)
+            name = cfg.format_file_name(name)
+            if len(name) > 0:
+                self.fp.write(name)
 
     def leave_tag(self, tagname):  # {{{1
         # type: (Text) -> None
         if tagname == "file":
             self.flash_output()
+            if tagname == self.tag_f:
+                self.tag_f = ""
         if tagname == "block" and tagname == self.tag:
             self.tag = ""
         if tagname == "summary" and tagname == self.tag:
             self.fp.write("\n")
             self.tag = ""
             debg("leave summary...")
-        if tagname == "file" and tagname == self.tag:
-            self.tag_f = ""
 
     def chardata(self, data):  # {{{1
         # type: (Text) -> None
