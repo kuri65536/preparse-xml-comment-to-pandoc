@@ -60,10 +60,14 @@ def extract_plain_and_xml_text(fname):  # {{{1
             f = not src.startswith("///")
             if f and len(block) > 0:
                 lin = determine_function_name(lin)
+                n = determine_indent(block)
                 yield "<function>{}</function>\n".format(lin)
                 for i in block:
                     i = strip_comment(i)
-                    yield i
+                    if len(i) > n:
+                        yield i[n:]
+                    else:
+                        yield i
                 block = []
                 continue
             elif f:
@@ -124,6 +128,20 @@ def determine_function_name(src):  # {{{1
     src = src.split(" ")[-1]
     src = src.strip()
     return src
+
+
+def determine_indent(lines):  # {{{1
+    # type: (List[Text]) -> int
+    for line in lines:
+        lin1 = strip_comment(line)
+        if len(lin1.strip()) > 0:
+            break
+    else:
+        return 0
+    for n, ch in enumerate(lin1):
+        if ch != " ":
+            return n
+    return 0  # can't determine, reserve all text.
 
 
 class Parser(object):  # {{{1
