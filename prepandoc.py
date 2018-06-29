@@ -60,8 +60,9 @@ def extract_plain_and_xml_text(fname):  # {{{1
             f = not src.startswith("///")
             if f and len(block) > 0:
                 lin = determine_function_name(lin)
+                if len(lin) > 0:
+                    yield "<block>{}</block>\n".format(lin)
                 n = determine_indent(block)
-                yield "<function>{}</function>\n".format(lin)
                 for i in block:
                     i = strip_comment(i)
                     if len(i) > n:
@@ -87,6 +88,8 @@ def strip_comment(line):  # {{{1
 
 def determine_function_name(src):  # {{{1
     # type: (Text) -> Text
+    if "using" in src:
+        return ""
 
     # case of: static int var = new int();
     if "=" in src:
@@ -162,14 +165,17 @@ class Parser(object):  # {{{1
 
     def enter_tag(self, tagname, attrs):  # {{{1
         # type: (Text, Dict[Text, Text]) -> None
+        if tagname == "block":
+            self.tag = tagname
         if tagname == "summary":
             self.tag = tagname
-            self.fp.write("### " + self.summary_name)
         if tagname == "file":
             self.tag_f = tagname
 
     def leave_tag(self, tagname):  # {{{1
         # type: (Text) -> None
+        if tagname == "block" and tagname == self.tag:
+            self.tag = ""
         if tagname == "summary" and tagname == self.tag:
             self.fp.write("\n")
             self.tag = ""
@@ -182,6 +188,8 @@ class Parser(object):  # {{{1
         debg(data)
         if self.tag in ("file", ):
             self.fp.write(data)
+        if self.tag in ("block", ):
+            self.fp.write("### " + data + "\n")
         if self.tag in ("summary", "remarks"):
             self.fp.write(data)
 
