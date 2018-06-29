@@ -6,10 +6,10 @@ import sys
 from typing import Dict, IO, Iterator, List, Text, Tuple
 
 from xml.parsers import expat  # type: ignore
-from html import escape as htmlquote
+# from html import escape as htmlquote
 
 
-Dict, IO, Iterator, Text, Tuple
+Dict, IO, Iterator, List, Text, Tuple
 rex_comment = re.compile("^ *\/\/\/")
 
 
@@ -50,26 +50,80 @@ def extract_plain_and_xml_text(fname):  # {{{1
     yield "<file> <!-- {} -->\n".format(fname)
     with open(fname, "rb") as fp:
         debg("parse {}...".format(fname))
+        block = []  # type: List[Text]
         for line in fp:
             try:
                 lin = line.decode("utf-8")
             except UnicodeDecodeError:
                 lin = line.decode("sjis")
             src = lin.strip()
-            if not src.startswith("///"):
+            f = not src.startswith("///")
+            if f and len(block) > 0:
+                lin = determine_function_name(lin)
+                yield "<function>{}</function>\n".format(lin)
+                for i in block:
+                    i = strip_comment(i)
+                    yield i
+                block = []
                 continue
-            lin = strip_comment(lin)
+            elif f:
+                continue
             debg(lin, end="")
-            yield lin
+            block.append(lin)
     yield "</file>\n"
 
 
 def strip_comment(line):  # {{{1
     # type: (Text) -> Text
     ret = rex_comment.sub("", line)
-    # ret = ret.replace("&", "&amp;")
-    ret = htmlquote(ret)
+    ret = ret.replace("&", "&amp;")
+    # ret = htmlquote(ret)  # N.G.: <summary> -> &lt;summary
     return ret
+
+
+def determine_function_name(src):  # {{{1
+    # type: (Text) -> Text
+
+    # case of: static int var = new int();
+    if "=" in src:
+        src = src.split("=")[0]
+        src = src.strip()
+        src = src.split(" ")[-1]
+        return src.strip()
+
+    # remove comment...
+    src = src.split("//")[0]
+    src = src.strip()
+
+    # case of: static int func(int a1, int a2) {
+    # case of: class cls {
+    # case of: int prop {get {return some[0];}}
+    if "{" in src:
+        src = src.split("{")[0]
+        src = src.strip()
+
+    # case of: static int var;
+    elif ";" in src:
+        src = src.split(" ")[-1]
+        src = src.replace(";", "")
+        return src
+
+    # case of: class cls: int {  // inherit
+    if "class" in src and ":" in src:
+        src = src.split(":")[0]
+
+    # case of: static int func(int a,
+    # case of: static int func(
+    if "(" in src:
+        src = src.split("(")[0]
+        src = src.split(" ")[-1]
+        src = src.strip()
+        return src
+
+    # case of: static int var
+    src = src.split(" ")[-1]
+    src = src.strip()
+    return src
 
 
 class Parser(object):  # {{{1

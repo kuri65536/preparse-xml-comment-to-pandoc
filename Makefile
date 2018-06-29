@@ -19,7 +19,7 @@ opts_pandoc := \
 doc:
 	# $(python) tools/prepandoc.py $(path_doc) temp.md
 	# export PATH="$(PATH):$(pandoc_path)"; \
-	$(python) prepandoc.py $(path_doc) README.md temp.md
+	$(python) tools/prepandoc.py $(path_doc) README.md temp.md
 	$(pandoc) $(opts_pandoc) -o result.html temp.md
 	# $(pandoc) $(opts_pandoc) -o abc.docx README.md temp.md
 
