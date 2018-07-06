@@ -19,23 +19,26 @@ public class Config {
             System.Text.Encoding.GetEncoding("utf-8");
 
     public static bool f_output_empty_block = false;
+    public static string[] tags_output = new[] {
+        "remarks"};
+        // "summary", "remarks"};
 
-    public static string format_block_name(string name) {
+    public static string format_block_name(string name) {  // {{{1
         return "### " + name + "\n";
     }
 
-    public static string format_file_name(string name) {
+    public static string format_file_name(string name) {  // {{{1
         return "<!-- " + name + " -->\n";
     }
 
-    public static bool filter_file_name(string name) {
+    public static bool filter_file_name(string name) {  // {{{1
         if (name.Contains("Designer.cs")) {
             return true;
         }
         return false;
     }
 
-    public static List<string> sort_files(List<string> seq) {
+    public static List<string> sort_files(List<string> seq) {  // {{{1
         var ret1 = new SortedDictionary<int, string>();
         var ret2 = new List<string>();
 

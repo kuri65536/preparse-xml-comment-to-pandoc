@@ -1,3 +1,6 @@
 let g:ale_cs_mcsc_options = "-r:System.Drawing.dll"
                           \ ." -r:System.Windows.Forms.dll"
+                          \ ." -r:System.Xml.dll"
 " let g:ale_cs_mcsc_assemblies = ["System.Drawing.dll", "System.Windows.Forms.dll"]
+setlocal errorformat="%f(%l\,%c): %trror %m"
+

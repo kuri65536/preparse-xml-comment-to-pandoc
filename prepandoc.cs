@@ -10,6 +10,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Security;
 
 using Log = PrePandoc.logging;  // import debug as debg, error as eror
 using cfg = PrePandoc.Config;
@@ -30,7 +31,7 @@ public class Parser {
     static Regex rex_comment = new Regex(@"^ *\/\/\/");
     static Regex rex_white = new Regex(@"\s*");
 
-    /// <summary> <!-- make_header {{{1 -->
+    /// <summary> <!-- make_header {{{1 --> parse source
     /// </summary>
     public static string make_header(string ftop) {
         var txt = "";
@@ -43,9 +44,11 @@ public class Parser {
         var all = TextFile.print("<all>\n");
         // var fname = filename_relative(ftop);
         all += TextFile.print("<file name=\"{0}\">", ftop);
-        all += TextFile.print("<summary>");
+        all += TextFile.print("<block name=\"top\">");
+        all += TextFile.print("<{0}>", cfg.tags_output[0]);
         all += TextFile.print(txt);
-        all += TextFile.print("</summary>");
+        all += TextFile.print("</{0}>", cfg.tags_output[0]);
+        all += TextFile.print("</block>\n");
         all += TextFile.print("</file>\n");
         return all;
     }
@@ -103,8 +106,13 @@ public class Parser {
         }
     }
 
-    /// <summary> <!-- iter_files {{{1 -->
+    /// <summary> <!-- extract_plain_and_xml_output {{{1 --> parse_source
     /// </summary>
+    /// <remarks>
+    /// - python version: can handle multi-encodings of documents.
+    /// - C# version: did not handle multi-encodings,
+    ///     you must choose single encoding.
+    /// </remarks>
     public static IEnumerable<string> extract_plain_and_xml_text(
             string fname
     ) {
@@ -112,38 +120,35 @@ public class Parser {
         Log.debg("parse {0}...", fname);
         var block = new List<String>();
         foreach (var line in System.IO.File.ReadAllLines(fname)) {
-            /*
-            try {
-                lin = line.decode("utf-8");
+            /* try {  // multi-encodings
+                lin = line.decode(cfg.enc);
             } catch (UnicodeDecodeError) {
-                lin = line.decode("sjis");
-            }
-             */
-            var lin = line;
-            var src = lin.Trim();
+                lin = line.decode(cfg.encs[1]); } */
+            var src = line.Trim();
             var f = !src.StartsWith("///");
             if (f && block.Count > 0) {
-                lin = determine_function_name(lin);
-                if (lin.Length > 0) {
-                    yield return "<block>" + lin + "\n</block>\n";
-                }
+                var name = determine_function_name(line);
+                name = SecurityElement.Escape(name);
+                name = name.Length < 1 ? "<block>":
+                       String.Format("<block name=\"{0}\">", name);
+                yield return name + "\n";
                 foreach (var i in block) {
                     var j = strip_comment(i);
                     yield return j + "\n";
                 }
-                yield return "\n";
+                yield return "</block>\n";
                 block.Clear();
                 continue;
             } else if (f) {
                 continue;
             }
-            Log.debg(lin);
-            block.Add(lin);
+            Log.debg("src:extracted: " + line);
+            block.Add(line);
         }
         yield return "</file>\n";
     }
 
-    /// <summary> <!-- strip_comment {{{1 -->
+    /// <summary> <!-- strip_comment {{{1 --> parse source
     /// </summary>
     public static string strip_comment(string line) {
         var ret = rex_comment.Replace(line, "");
@@ -152,7 +157,7 @@ public class Parser {
         return ret;
     }
 
-    /// <summary> <!-- determine_function_name {{{1 -->
+    /// <summary> <!-- determine_function_name {{{1 --> parse source
     /// </summary>
     public static string determine_function_name(string src) {
         if (src.Contains("using")) {
@@ -205,7 +210,7 @@ public class Parser {
         return src;
     }
 
-    /// <summary> <!-- strip_indent {{{1 -->
+    /// <summary> <!-- strip_indent {{{1 --> parse XML
     /// </summary>
     public string strip_indent(List<string> block) {
         var src = String.Join("", block);
@@ -244,10 +249,10 @@ public class Parser {
         return ret;
     }
 
-    /// <summary> <!-- is_empty {{{1 -->
+    /// <summary> <!-- is_empty {{{1 --> parse XML
     /// </summary>
     public static bool is_empty(string src) {
-        var ret = rex_white.Replace("", src);
+        var ret = rex_white.Replace(src, "");
         return ret.Length < 1;
     }
 
@@ -279,7 +284,7 @@ public class Parser {
         // just for ignore warnings.
     }
 
-    /// <summary> <!-- flash_output {{{1 -->
+    /// <summary> <!-- flash_output {{{1 --> parse XML
     /// </summary>
     public void flash_output() {
         var blk = this.block;
@@ -307,7 +312,7 @@ public class Parser {
         blk.Clear();
     }
 
-    /// <summary> <!-- enter_tag {{{1 -->
+    /// <summary> <!-- enter_tag {{{1 --> parse XML
     /// </summary>
     public void enter_tag(string tagname,
                           Dictionary<String, String> attrs
@@ -315,14 +320,10 @@ public class Parser {
         Log.eror("enter {0}", tagname);
         // type: (Text, Dict[Text, Text]) -> None
         if (tagname == "block") {
-            this.block_name = "";
+            this.block_name = !attrs.ContainsKey("name") ? "": attrs["name"];
             this.tag = tagname;
         }
-        if (tagname == "remarks") {
-            this.tag = tagname;
-        }
-        if (tagname == "summary") {
-            this.flash_output();
+        if (cfg.tags_output.Contains(tagname)) {
             this.tag = tagname;
         }
         if (tagname == "file") {
@@ -336,42 +337,38 @@ public class Parser {
         }
     }
 
-    /// <summary> <!-- leave_tag {{{1 -->
+    /// <summary> <!-- leave_tag {{{1 --> parse XML
     /// </summary>
     public void leave_tag(string tagname) {
         Log.eror("leave {0}", tagname);
         if (tagname == "file") {
-            this.flash_output();
             if (tagname == this.tag_f) {
                 this.tag_f = "";
             }
+            this.flash_output();
+            return;
         }
         if (tagname == "block" && tagname == this.tag) {
-            var data = this.block_name;
-            data = data.Trim();
-            Log.warn("XML:found block: " + data);
-            this.block_name = data;
+            Log.warn("XML:found block: " + this.block_name);
             this.tag = "";
+            this.flash_output();
+            return;
         }
-        if (tagname == "summary" && tagname == this.tag) {
-            TextFile.print("");
-            this.tag = "";
-            Log.debg("leave summary...");
+        if (!cfg.tags_output.Contains(tagname)) {
+            return;
         }
+        if (tagname != this.tag) {
+            return;
+        }
+        this.tag = "";
+        Log.debg("XML:leave output block {0}...", tagname);
     }
 
-    /// <summary> <!-- chardata {{{1 -->
+    /// <summary> <!-- chardata {{{1 --> parse XML
     /// </summary>
     public void chardata(String data) {
-        Log.debg("chardata: {0}", data);
-        if (new[] {"file"}.Contains(this.tag)) {
-            TextFile.print(data);
-            this.block.Add(data);
-        }
-        if (new[] {"block"}.Contains(this.tag)) {
-            this.block_name += data;
-        }
-        if (new[] {"summary", "remarks"}.Contains(this.tag)) {
+        Log.debg("XML:chardata: {0}", data);
+        if (cfg.tags_output.Contains(this.tag)) {
             this.block.Add(data);
         }
     }
