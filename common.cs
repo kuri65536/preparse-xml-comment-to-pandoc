@@ -14,13 +14,13 @@ using System.Xml;
 
 namespace PrePandoc {
 public static class logging {
-    public static int __level__ = 40;
     static readonly int VERB = 10;
     static readonly int DEBG = 20;
     static readonly int INFO = 30;
     static readonly int WARN = 40;
     static readonly int EROR = 50;
     static readonly int CRIT = 60;
+    public static int __level__ = WARN;
 
     public static void setLevel(int lvl) {
         __level__ = lvl;
@@ -85,6 +85,14 @@ public static class TextFile {
         }
         return src;
     }
+
+    public static string write(string src) {
+        try {
+            File.AppendAllText(fname, src);
+        } catch (Exception) {
+        }
+        return src;
+    }
 }
 
 
@@ -94,37 +102,53 @@ public delegate void FuncXmlParseEnd(string name);
 public delegate void FuncXmlParseData(string data);
 
 
+/// <summary> <!-- parse_attributes {{{1 -->
+/// </summary>
 public class XmlParser {
     public FuncXmlParseStart StartElementHandler;
     public FuncXmlParseEnd EndElementHandler;
     public FuncXmlParseData CharacterDataHandler;
 
+    /// <summary> <!-- parse_attributes {{{1 -->
+    /// </summary>
     public void Parse(string src) {
         var strreader = new StringReader(src);
         this.Parse(strreader);
     }
 
+    /// <summary> <!-- parse_attributes {{{1 -->
+    /// </summary>
     public void Parse(TextReader src) {
+        // var stgs = new XmlReaderSettings();
+        // stgs.IgnoreWhiteSpace = true;
         var reader = XmlReader.Create(src);
 
-        reader.MoveToContent();
+        // reader.MoveToContent();
         // Parse the file and display each of the nodes.
         while (reader.Read())  {
-            switch (reader.NodeType)  {
+            var node = reader.NodeType;
+            logging.eror("xml-reader... {0}", node);
+            switch (node)  {
                 case XmlNodeType.Element:
+                    var name = reader.Name;
+                    logging.eror("xml-elem-bgn. {0}-{1}", node, name);
                     var d = parse_attributes(reader);
-                    this.StartElementHandler(reader.Name, d);
+                    this.StartElementHandler(name, d);
                     break;
                 case XmlNodeType.EndElement:
-                    this.EndElementHandler(reader.Name);
+                    name = reader.Name;
+                    logging.eror("xml-elem-end. {0}-{1}", node, name);
+                    this.EndElementHandler(name);
                     break;
                 case XmlNodeType.Whitespace:
-                    var data = reader.ReadString();
-                    this.CharacterDataHandler(data);
+                    // var text = reader.ReadString();
+                    logging.eror("xml-whspace.. ");  // {0}: {1}", node, text);
+                    this.CharacterDataHandler(" ");
                     break;
                 case XmlNodeType.Text:
-                    data = reader.ReadString();
-                    this.CharacterDataHandler(data);
+                    var text = reader.ReadString();
+                    logging.eror("xml-text..... {0}: {1}", node, text);
+                    this.CharacterDataHandler(text);
                     break;
             }
         }
@@ -132,14 +156,25 @@ public class XmlParser {
         src.Close();
     }
 
+    /// <summary> <!-- parse_attributes {{{1 -->
+    /// </summary>
     public Dictionary<string, string> parse_attributes(
             XmlReader reader
     ) {
         var ret = new Dictionary<string, string>();
-        for (int i = 0; i < reader.AttributeCount; i++) {
-            reader.MoveToAttribute(i);
+        if (!reader.HasAttributes) {
+            return ret;
+        }
+        while (reader.MoveToNextAttribute()) {
             ret.Add(reader.Name, reader.Value);
         }
+        #if false
+        var n = reader.AttributeCount;
+        for (int i = 0; i < n; i++) {
+            ret.Add(reader.Name, reader.Value);
+        }
+        #endif
+        reader.MoveToElement();
         return ret;
     }
 }

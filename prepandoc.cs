@@ -6,13 +6,10 @@
 /// v.2.0. If a copy of the MPL was not distributed with this file,
 /// You can obtain one at https://mozilla.org/MPL/2.0/.
 ///
-
 using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-
-// from xml.parsers import expat  # type: ignore
 
 using Log = PrePandoc.logging;  // import debug as debg, error as eror
 using cfg = PrePandoc.Config;
@@ -21,7 +18,7 @@ using cfg = PrePandoc.Config;
 /// </summary>
 namespace PrePandoc {
 
-/// <summary>
+/// <summary> <!-- Parser {{{1 -->
 /// </summary>
 public class Parser {
     public string tag;
@@ -32,7 +29,9 @@ public class Parser {
     static Regex rex_comment = new Regex(@"^ *\/\/\/");
     static Regex rex_white = new Regex(@"\s*");
 
-    public static string make_header(string ftop) {  // {{{1
+    /// <summary> <!-- make_header {{{1 -->
+    /// </summary>
+    public static string make_header(string ftop) {
         var txt = "";
         try {
             txt = System.IO.File.ReadAllText(ftop, cfg.enc);
@@ -46,11 +45,13 @@ public class Parser {
         all += TextFile.print("<summary>");
         all += TextFile.print(txt);
         all += TextFile.print("</summary>");
-        all += TextFile.print("</file>");
+        all += TextFile.print("</file>\n");
         return all;
     }
 
-    public static string filename_relative(string path) {  // {{{1
+    /// <summary> <!-- filename_relative {{{1 -->
+    /// </summary>
+    public static string filename_relative(string path) {
         var droot = System.IO.Path.GetDirectoryName(
             System.Reflection.Assembly.GetEntryAssembly().Location);
         droot = System.IO.Path.GetDirectoryName(droot);  // ..
@@ -71,7 +72,9 @@ public class Parser {
         return path;
     }
 
-    public static IEnumerable<string> iter_files(string dname) {  // {{{1
+    /// <summary> <!-- iter_files {{{1 -->
+    /// </summary>
+    public static IEnumerable<string> iter_files(string dname) {
         foreach (var d in System.IO.Directory.GetDirectories(dname)) {
             foreach (var f in iter_files(d)) {
                 yield return f;
@@ -83,7 +86,9 @@ public class Parser {
         }
     }
 
-    public static IEnumerable<string> iter_sources(string dname) {  // {{{1
+    /// <summary> <!-- iter_source {{{1 -->
+    /// </summary>
+    public static IEnumerable<string> iter_sources(string dname) {
         var seq = new List<string>();
         foreach (var fname in iter_files(dname)) {
             // fname = System.IO.Path.Combine(dbase, fbase);
@@ -99,6 +104,8 @@ public class Parser {
         }
     }
 
+    /// <summary> <!-- iter_files {{{1 -->
+    /// </summary>
     public static IEnumerable<string> extract_plain_and_xml_text(
             string fname
     ) {
@@ -119,12 +126,13 @@ public class Parser {
             if (f && block.Count > 0) {
                 lin = determine_function_name(lin);
                 if (lin.Length > 0) {
-                    yield return "<block>" + lin + "</block>\n";
+                    yield return "<block>" + lin + "\n</block>\n";
                 }
                 foreach (var i in block) {
                     var j = strip_comment(i);
-                    yield return j;
+                    yield return j + "\n";
                 }
+                yield return "\n";
                 block.Clear();
                 continue;
             } else if (f) {
@@ -136,14 +144,18 @@ public class Parser {
         yield return "</file>\n";
     }
 
-    public static string strip_comment(string line) {  // {{{1
-        var ret = rex_comment.Replace("", line);
+    /// <summary> <!-- strip_comment {{{1 -->
+    /// </summary>
+    public static string strip_comment(string line) {
+        var ret = rex_comment.Replace(line, "");
         ret = ret.Replace("&", "&amp;");
         // ret = htmlquote(ret)  # N.G.: <summary> -> &lt;summary
         return ret;
     }
 
-    public static string determine_function_name(string src) {  // {{{1
+    /// <summary> <!-- determine_function_name {{{1 -->
+    /// </summary>
+    public static string determine_function_name(string src) {
         if (src.Contains("using")) {
             return "";
         }
@@ -194,7 +206,9 @@ public class Parser {
         return src;
     }
 
-    public string strip_indent(List<string> block) {  // {{{1
+    /// <summary> <!-- strip_indent {{{1 -->
+    /// </summary>
+    public string strip_indent(List<string> block) {
         var src = String.Join("", block);
         var lines = src.Split('\n');
         var lin1 = "";
@@ -217,6 +231,7 @@ public class Parser {
                 }
             }
         }
+        Log.eror("indent: {0}", ind);
 
         var ret = "";
         foreach (var line in lines) {
@@ -230,16 +245,20 @@ public class Parser {
         return ret;
     }
 
-    public static bool is_empty(string src) {  // {{{1
+    /// <summary> <!-- is_empty {{{1 -->
+    /// </summary>
+    public static bool is_empty(string src) {
         var ret = rex_white.Replace("", src);
         return ret.Length < 1;
     }
 
 
-    public Parser(XmlParser parser, string fname) {  // {{{1
+    /// <summary> <!-- new {{{1 -->
+    /// </summary>
+    public Parser(XmlParser parser, string fname) {
         // type: (expat.Parser, Text) -> None
         if (fname != null) {
-            TextFile.open(fname);
+            TextFile.open(fname, true);
         } else {
             // this.fp = fname;
         }
@@ -257,11 +276,13 @@ public class Parser {
         this.block = new List<string>();
     }
 
-    public void flash_output() {  // {{{1
-        // type: () -> None
+    /// <summary> <!-- flash_output {{{1 -->
+    /// </summary>
+    public void flash_output() {
         var blk = this.block;
-        this.block.Clear();
+        Log.eror("flash: {0}", blk.Count);
         if (blk.Count < 1) {
+            blk.Clear();
             return;
         }
 
@@ -269,19 +290,26 @@ public class Parser {
         if (is_empty(ret)) {
             Log.eror("block is empty: " + this.block_name);
             if (!cfg.f_output_empty_block) {
+                blk.Clear();
                 return;
             }
         }
         if (this.block_name.Length > 0) {
+            Log.eror("block name: " + this.block_name);
             var s = cfg.format_block_name(this.block_name);
             TextFile.print(s);
+            this.block_name = "";
         }
         TextFile.print(ret);
+        blk.Clear();
     }
 
+    /// <summary> <!-- enter_tag {{{1 -->
+    /// </summary>
     public void enter_tag(string tagname,
                           Dictionary<String, String> attrs
-    ) {  // {{{1
+    ) {
+        Log.eror("enter {0}", tagname);
         // type: (Text, Dict[Text, Text]) -> None
         if (tagname == "block") {
             this.tag = tagname;
@@ -301,7 +329,10 @@ public class Parser {
         }
     }
 
-    public void leave_tag(string tagname) {  // {{{1
+    /// <summary> <!-- leave_tag {{{1 -->
+    /// </summary>
+    public void leave_tag(string tagname) {
+        Log.eror("leave {0}", tagname);
         if (tagname == "file") {
             this.flash_output();
             if (tagname == this.tag_f) {
@@ -309,6 +340,10 @@ public class Parser {
             }
         }
         if (tagname == "block" && tagname == this.tag) {
+            var data = this.block_name;
+            data = data.Trim();
+            Log.eror("found block: " + data);
+            this.block_name = data;
             this.tag = "";
         }
         if (tagname == "summary" && tagname == this.tag) {
@@ -318,14 +353,16 @@ public class Parser {
         }
     }
 
-    public void chardata(String data) {  // {{{1
-        Log.debg(data);
+    /// <summary> <!-- chardata {{{1 -->
+    /// </summary>
+    public void chardata(String data) {
+        Log.debg("chardata: {0}", data);
         if (new[] {"file"}.Contains(this.tag)) {
             TextFile.print(data);
             this.block.Add(data);
         }
         if (new[] {"block"}.Contains(this.tag)) {
-            this.block_name = data;
+            this.block_name += data;
         }
         if (new[] {"summary", "remarks"}.Contains(this.tag)) {
             this.block.Add(data);
@@ -351,7 +388,7 @@ public class Parser {
                 }
                 txt += _line;
             }
-            TextFile.print(txt);
+            TextFile.write(txt + "\n");
         }
         TextFile.print("</all>");
 
