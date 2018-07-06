@@ -1,3 +1,19 @@
+CS_OPTIONS := -r:System.Windows.Forms.dll -r:System.Drawing.dll
+# CS_OPTIONS += -r:System.Collections.Generic.dll
+
+bin := prepandoc.exe
+src := prepandoc.cs config.cs common.cs
+
+debug: $(bin)
+	mono --debug $(bin)
+
+build: $(bin)
+
+$(bin): $(src)
+	mcs $(CS_OPTIONS) -out:$@ $^
+
+
+
 path_ref := /c/Users/user1/Desktop/pandoc-template
 FC := $(path_ref)/template/template_meiryo.docx
 FB := $(path_ref)/config/crossref_config.yaml
