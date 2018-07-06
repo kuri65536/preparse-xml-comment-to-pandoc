@@ -25,6 +25,7 @@ public class Parser {
     public string tag_f;
     public string block_name;
     public List<string> block;
+    public string dname_root;
 
     static Regex rex_comment = new Regex(@"^ *\/\/\/");
     static Regex rex_white = new Regex(@"\s*");
@@ -40,8 +41,8 @@ public class Parser {
         }
 
         var all = TextFile.print("<all>\n");
-        var fname = filename_relative(ftop);
-        all += TextFile.print("<file name=\"{0}\">", fname);
+        // var fname = filename_relative(ftop);
+        all += TextFile.print("<file name=\"{0}\">", ftop);
         all += TextFile.print("<summary>");
         all += TextFile.print(txt);
         all += TextFile.print("</summary>");
@@ -51,25 +52,23 @@ public class Parser {
 
     /// <summary> <!-- filename_relative {{{1 -->
     /// </summary>
-    public static string filename_relative(string path) {
-        var droot = System.IO.Path.GetDirectoryName(
-            System.Reflection.Assembly.GetEntryAssembly().Location);
-        droot = System.IO.Path.GetDirectoryName(droot);  // ..
+    public string filename_relative(string path) {
+        var droot = System.IO.Path.GetFullPath(this.dname_root);
+        // var droot = System.IO.Path.GetDirectoryName(
+        //     System.Reflection.Assembly.GetEntryAssembly().Location);
+        // droot = System.IO.Path.GetDirectoryName(droot);  // ..
         // droot = System.IO.Path.GetDirectory(droot);  // ..
 
+        Log.debg("relative: directory root: {0}", droot);
         var _path = System.IO.Path.GetFullPath(path);
+        Log.debg("relative: file-name     : {0}", _path);
         if (_path.StartsWith(droot)) {
             _path = _path.Substring(droot.Length);
-        } else {
-            _path = System.IO.Path.GetFullPath(path);
-            if (_path.StartsWith(droot)) {
-                _path = _path.Substring(droot.Length);
-            }
         }
         if (_path.StartsWith("/")) {
             _path = _path.Substring(1);
         }
-        return path;
+        return _path;
     }
 
     /// <summary> <!-- iter_files {{{1 -->
@@ -276,6 +275,10 @@ public class Parser {
         this.block = new List<string>();
     }
 
+    public void close() {
+        // just for ignore warnings.
+    }
+
     /// <summary> <!-- flash_output {{{1 -->
     /// </summary>
     public void flash_output() {
@@ -397,6 +400,7 @@ public class Parser {
 
         var p = new XmlParser();  // expat.ParserCreate();
         var parser = new Parser(p, fout);
+        parser.dname_root = droot;
         try {
             var stm = new System.IO.StreamReader("temp.txt");
             p.Parse(stm);  // , True);
@@ -405,6 +409,7 @@ public class Parser {
             // can't do in Mono
             // Log.dump_stack(ex.StackInfo.ToString());
         }
+        parser.close();
     }
 }
 }

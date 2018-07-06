@@ -20,7 +20,6 @@ public class Config {
         return "### " + name + "\n";
     }
 
-
     public static string format_file_name(string name) {
         return "<!-- " + name + " -->\n";
     }
