@@ -8,6 +8,10 @@
 ///
 using System;
 using System.Text;
+using System.Linq;
+using System.Collections.Generic;
+
+using Log = PrePandoc.logging;
 
 namespace PrePandoc {
 public class Config {
@@ -29,6 +33,56 @@ public class Config {
             return true;
         }
         return false;
+    }
+
+    public static List<string> sort_files(List<string> seq) {
+        var ret1 = new SortedDictionary<int, string>();
+        var ret2 = new List<string>();
+
+        foreach (var fname in seq) {
+            var n = extract_order_from_file(fname);
+            if (!n.HasValue) {
+                ret2.Add(fname);
+                continue;
+            }
+            var n2 = n.Value * 10000;
+            while (ret1.ContainsKey(n2)) {
+                Log.warn("order {1} was already specified for {0}, " +
+                         "re-order it...", ret1[n2], n.Value);
+                n2 += 1;
+            }
+            ret1.Add(n2, fname);
+        }
+        var ret3 = ret1.Values.ToList().Concat(ret2).ToList();
+        return ret3;
+    }
+
+    private static int? extract_order_from_file(string fname) {
+        String txt;
+        try {
+            txt = System.IO.File.ReadAllText(fname);
+        } catch (Exception) {
+            return null;
+        }
+        var n = txt.IndexOf("<" + "page>");
+        if (n == -1) {
+            return null;
+        }
+        Log.debg("page-order: page-tag detected: {0} in {1}", n, fname);
+        txt = txt.Substring(n + 6);
+        n = txt.IndexOf("<" + "/page>");
+        if (n == -1) {
+            return null;
+        }
+        txt = txt.Substring(0, n);
+        Log.debg("page-order: /page detected: at {0} => {1}", n, txt);
+        if (!Int32.TryParse(txt, out n)) {
+            Log.eror("page-order: can't parse number: {0} in {1}, check it",
+                     txt, fname);
+            return null;
+        }
+        Log.info("page-order: extracted {0} for {1}.", n, fname);
+        return n;
     }
 }
 }

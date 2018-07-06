@@ -97,7 +97,7 @@ public class Parser {
             var f = System.IO.Path.GetFullPath(fname);
             seq.Add(f);
         }
-        // TODO: seq.sort();
+        seq = cfg.sort_files(seq);
         foreach (var fname in seq) {
             yield return fname;
         }
