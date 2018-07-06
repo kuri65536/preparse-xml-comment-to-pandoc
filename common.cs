@@ -109,14 +109,14 @@ public class XmlParser {
     public FuncXmlParseEnd EndElementHandler;
     public FuncXmlParseData CharacterDataHandler;
 
-    /// <summary> <!-- parse_attributes {{{1 -->
+    /// <summary> <!-- Parse {{{1 -->
     /// </summary>
     public void Parse(string src) {
         var strreader = new StringReader(src);
         this.Parse(strreader);
     }
 
-    /// <summary> <!-- parse_attributes {{{1 -->
+    /// <summary> <!-- Pasre {{{1 -->
     /// </summary>
     public void Parse(TextReader src) {
         // var stgs = new XmlReaderSettings();
@@ -127,27 +127,27 @@ public class XmlParser {
         // Parse the file and display each of the nodes.
         while (reader.Read())  {
             var node = reader.NodeType;
-            logging.eror("xml-reader... {0}", node);
+            logging.verb("xml-reader... {0}", node);
             switch (node)  {
                 case XmlNodeType.Element:
                     var name = reader.Name;
-                    logging.eror("xml-elem-bgn. {0}-{1}", node, name);
+                    logging.verb("xml-elem-bgn. {0}-{1}", node, name);
                     var d = parse_attributes(reader);
                     this.StartElementHandler(name, d);
                     break;
                 case XmlNodeType.EndElement:
                     name = reader.Name;
-                    logging.eror("xml-elem-end. {0}-{1}", node, name);
+                    logging.verb("xml-elem-end. {0}-{1}", node, name);
                     this.EndElementHandler(name);
                     break;
                 case XmlNodeType.Whitespace:
                     // var text = reader.ReadString();
-                    logging.eror("xml-whspace.. ");  // {0}: {1}", node, text);
+                    logging.verb("xml-whspace.. ");  // {0}: {1}", node, text);
                     this.CharacterDataHandler(" ");
                     break;
                 case XmlNodeType.Text:
-                    var text = reader.ReadString();
-                    logging.eror("xml-text..... {0}: {1}", node, text);
+                    var text = reader.Value;
+                    logging.verb("xml-text..... {0}: {1}", node, text);
                     this.CharacterDataHandler(text);
                     break;
             }

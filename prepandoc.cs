@@ -315,6 +315,10 @@ public class Parser {
         Log.eror("enter {0}", tagname);
         // type: (Text, Dict[Text, Text]) -> None
         if (tagname == "block") {
+            this.block_name = "";
+            this.tag = tagname;
+        }
+        if (tagname == "remarks") {
             this.tag = tagname;
         }
         if (tagname == "summary") {
@@ -345,7 +349,7 @@ public class Parser {
         if (tagname == "block" && tagname == this.tag) {
             var data = this.block_name;
             data = data.Trim();
-            Log.eror("found block: " + data);
+            Log.warn("XML:found block: " + data);
             this.block_name = data;
             this.tag = "";
         }
