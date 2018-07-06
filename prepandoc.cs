@@ -40,7 +40,7 @@ public class Parser {
             return null;
         }
 
-        var all = "<all>\n";
+        var all = TextFile.print("<all>\n");
         var fname = filename_relative(ftop);
         all += TextFile.print("<file name=\"{0}\">", fname);
         all += TextFile.print("<summary>");
@@ -102,8 +102,8 @@ public class Parser {
     public static IEnumerable<string> extract_plain_and_xml_text(
             string fname
     ) {
-        yield return "<file name=\"" + fname + "\"> ";
-        Log.debg("parse {}...", fname);
+        yield return "<file name=\"" + fname + "\">\n";
+        Log.debg("parse {0}...", fname);
         var block = new List<String>();
         foreach (var line in System.IO.File.ReadAllLines(fname)) {
             /*
@@ -230,20 +230,20 @@ public class Parser {
         return ret;
     }
 
-    public bool is_empty(string src) {  // {{{1
+    public static bool is_empty(string src) {  // {{{1
         var ret = rex_white.Replace("", src);
         return ret.Length < 1;
     }
 
 
-    public bool __init__(object parser, string fname) {  // {{{1
+    public Parser(XmlParser parser, string fname) {  // {{{1
         // type: (expat.Parser, Text) -> None
         if (fname != null) {
             TextFile.open(fname);
         } else {
             // this.fp = fname;
         }
-        var s = String.Format("<link href=\"{}\" rel=\"stylesheet\"></link>",
+        var s = String.Format("<link href=\"{0}\" rel=\"stylesheet\"></link>",
                 "tools/swiss.css");
         TextFile.print(s);
 
@@ -339,12 +339,8 @@ public class Parser {
         var ftop = (args.Length < 2) ? "README.md": args[1];
         var fout = (args.Length < 3) ? "temp.md": args[2];
 
-        // p = expat.ParserCreate();
-        var p = new object();
-        var parser = new Parser(p);
-        // parser = Parser(p, sys.stdout)
-        TextFile.open("temp.txt");
-        var all = make_header(ftop);
+        TextFile.open("temp.txt", true);
+        make_header(ftop);
 
         foreach (var fname in iter_sources(droot)) {
             var txt = "";
@@ -355,14 +351,15 @@ public class Parser {
                 }
                 txt += _line;
             }
-            all += txt;
             TextFile.print(txt);
         }
-        all += "</all>";
+        TextFile.print("</all>");
 
-        TextFile.open(fout);
+        var p = new XmlParser();  // expat.ParserCreate();
+        var parser = new Parser(p, fout);
         try {
-            p.Parse(all, True);
+            var stm = new System.IO.StreamReader("temp.txt");
+            p.Parse(stm);  // , True);
         } catch (Exception ex) {
             Log.crit("parse.exception: {0}", ex.Message);
             // can't do in Mono
