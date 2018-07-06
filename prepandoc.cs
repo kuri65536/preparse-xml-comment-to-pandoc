@@ -380,6 +380,9 @@ public class Parser {
         make_header(ftop);
 
         foreach (var fname in iter_sources(droot)) {
+            if (cfg.filter_file_name(fname)) {
+                continue;
+            }
             var txt = "";
             foreach (var line in extract_plain_and_xml_text(fname)) {
                 var _line = line;

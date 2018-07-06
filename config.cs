@@ -24,7 +24,14 @@ public class Config {
     public static string format_file_name(string name) {
         return "<!-- " + name + " -->\n";
     }
+
+    public static bool filter_file_name(string name) {
+        if (name.Contains("Designer.cs")) {
+            return true;
+        }
+        return false;
+    }
 }
 }
 
-// vi: ft=cs
+// vi: ft=cs:tw=4:ts=4:et:nowrap:fdm=marker
