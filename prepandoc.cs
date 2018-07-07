@@ -100,7 +100,7 @@ public class Parser {
     /// <summary> <!-- iter_source {{{1 --> tool for enumerate the
     /// source files of specified directory (recursive) .
     ///
-    /// ignore the files by `Config.filter_file_name` .
+    /// ignore the files by `Config.filter_file_name()` .
     /// </summary>
     /// <remarks>
     /// - enumerate the C\# sources by `iter_source()` .
@@ -109,9 +109,6 @@ public class Parser {
         var seq = new List<string>();
         foreach (var fname in iter_files(dname)) {
             // fname = System.IO.Path.Combine(dbase, fbase);
-            if (!fname.EndsWith(".cs")) {
-                continue;
-            }
             if (cfg.filter_file_name(fname)) {
                 continue;
             }

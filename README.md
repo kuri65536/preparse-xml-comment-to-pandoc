@@ -59,6 +59,7 @@ Change-Log
 ### 1.1.0
 - make XML document comment in this project to sample-this-proj.md.
 - command line explanation.
+- move filtering '.cs' in filter_file_name function.
 
 ### 1.0.0
 - C# version
@@ -73,7 +74,6 @@ Change-Log
 
 TODO
 ---
-- move filtering '.cs' in filter_file_name function.
 - use command line library.
 - setting files for customize behavior.
 - filter output of blocks by user specified tag or attribute.

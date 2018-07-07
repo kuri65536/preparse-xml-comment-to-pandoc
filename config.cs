@@ -57,6 +57,9 @@ public class Config {
     /// - specify the filtering of source file names.
     /// </remarks>
     public static bool filter_file_name(string name) {
+        if (!name.EndsWith(".cs")) {
+            return true;
+        }
         if (name.Contains("Designer.cs")) {
             return true;
         }

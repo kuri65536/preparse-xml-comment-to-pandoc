@@ -34,7 +34,9 @@ How to use
 
 -   compile this source (or binary is in [release](release) )
 
-    see [Makefile](Makefile) `build` section.
+    -   see [Makefile](Makefile) `build` section.
+    -   [Mono binary compatible with
+        Windows](https://www.mono-project.com/docs/faq/technical/#is-mono-binary-compatible-with-windows%5D)
 
 -   run the tool in your C\# project
 
@@ -59,6 +61,12 @@ $ pandoc -o doc.html temp.md
 Change-Log
 ----------
 
+### 1.1.0
+
+-   make XML document comment in this project to sample-this-proj.md.
+-   command line explanation.
+-   move filtering '.cs' in filter\_file\_name function.
+
 ### 1.0.0
 
 -   C\# version
@@ -74,9 +82,6 @@ Change-Log
 TODO
 ----
 
--   move filtering '.cs' in filter\_file\_name function.
--   make XML document comment in this project to sample-this-proj.md.
--   command line explanation.
 -   use command line library.
 -   setting files for customize behavior.
 -   filter output of blocks by user specified tag or attribute.
