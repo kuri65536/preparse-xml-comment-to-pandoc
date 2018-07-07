@@ -422,6 +422,9 @@ public class Parser {
     ///
     /// </remarks>
     public static void Main(String[] args) {
+        if (verbose(args)) {
+            return;
+        }
         var droot = (args.Length < 1) ? ".": args[0];
         var ftop = (args.Length < 2) ? "README.md": args[1];
         var fout = (args.Length < 3) ? "temp.md": args[2];
@@ -454,6 +457,26 @@ public class Parser {
             // Log.dump_stack(ex.StackInfo.ToString());
         }
         parser.close();
+    }
+
+    public static bool verbose(string[] args) {
+        if (args.Length < 1) {
+        } else if (args.Contains("-h") || args.Contains("--help")) {
+        } else if (args.Contains("-v")) {
+        } else {
+            return false;
+        }
+        foreach (var msg in new[] {
+            "prepandoc.exe: XML comment parser for pandoc version 1.0.0",
+            "usage: prepandoc.exe [directory] [header-file] [output-file]",
+            "  directory:   document search directory",
+            "  header-file: markdown file for the document header",
+            "  output-file: file name for markdown output",
+            "",
+        }) {
+            Console.WriteLine(msg);
+        }
+        return true;
     }
 }
 }
