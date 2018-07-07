@@ -13,6 +13,8 @@ using System.Xml;
 
 
 namespace PrePandoc {
+/// <summary> <!-- logging {{{1 --> log function with leveling.
+/// </summary>
 public static class logging {
     static readonly int VERB = 10;
     static readonly int DEBG = 20;
@@ -62,6 +64,8 @@ public static class logging {
     }
 }
 
+/// <summary> <!-- TextFile {{{1 --> the simple file write tool by C\#
+/// </summary>
 public static class TextFile {
     static string fname;
 
@@ -102,7 +106,8 @@ public delegate void FuncXmlParseEnd(string name);
 public delegate void FuncXmlParseData(string data);
 
 
-/// <summary> <!-- parse_attributes {{{1 -->
+/// <summary> <!-- XmlParser {{{1 -->
+/// XML parser tool compat with python expat module.
 /// </summary>
 public class XmlParser {
     public FuncXmlParseStart StartElementHandler;

@@ -1,10 +1,11 @@
 platform := $(shell uname)
 ifeq ($(platform),Linux)
-    prepandoc := tools/prepandoc.exe
+    prepandoc := ./prepandoc.exe
     pandoc_path := 
     pandoc_tmps := 
     pandoc := $(pandoc_path)pandoc
     output := result.html
+    output1 := sample-this-proj.md
     launch := browse
 else  # for windows (msys).
     prepandoc := tools/prepandoc.exe
@@ -38,7 +39,7 @@ FT := $(pandoc_tmps)/config/bibliography.bib
 path_doc := .
 
 opts_pandoc := \
-               --toc --template=tools/template1.html
+               --toc --template=template1.html
 #              -F pandoc-crossref \
 #              -M crossrefYaml="$(FC)" \
 #              --bibliography "$(FB)" \
@@ -47,7 +48,8 @@ opts_pandoc := \
 doc:
 	# export PATH="$(PATH):$(pandoc_path)";
 	$(prepandoc) $(path_doc) $(path_doc)/README.md temp.md
-	$(pandoc) $(opts_pandoc) -o $(output) temp.md
+	$(pandoc) $(opts_pandoc1) -o $(output1) temp.md
+	$(pandoc) $(opts_pandoc) -o $(output) $(output1)
 	$(launch) $(output)
 
 

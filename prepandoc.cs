@@ -15,12 +15,17 @@ using System.Security;
 using Log = PrePandoc.logging;  // import debug as debg, error as eror
 using cfg = PrePandoc.Config;
 
-/// <summary>
-/// </summary>
+/// <page>1</page>
 namespace PrePandoc {
 
 /// <summary> <!-- Parser {{{1 -->
 /// </summary>
+/// <remarks>
+/// How it works
+/// ----
+/// 1. parse XML from C\# sources
+/// 2. parse single markdown file from XML.
+/// </remarks>
 public class Parser {
     public string tag;
     public string tag_f;
@@ -33,6 +38,9 @@ public class Parser {
 
     /// <summary> <!-- make_header {{{1 --> parse source
     /// </summary>
+    /// <remarks>
+    /// ### parse XML from C\# sources
+    /// </remarks>
     public static string make_header(string ftop) {
         var txt = "";
         try {
@@ -74,7 +82,8 @@ public class Parser {
         return _path;
     }
 
-    /// <summary> <!-- iter_files {{{1 -->
+    /// <summary> <!-- iter_files {{{1 --> tool for enumerate the
+    /// files of specified directory (recursive) .
     /// </summary>
     public static IEnumerable<string> iter_files(string dname) {
         foreach (var d in System.IO.Directory.GetDirectories(dname)) {
@@ -88,13 +97,22 @@ public class Parser {
         }
     }
 
-    /// <summary> <!-- iter_source {{{1 -->
+    /// <summary> <!-- iter_source {{{1 --> tool for enumerate the
+    /// source files of specified directory (recursive) .
+    ///
+    /// ignore the files by `Config.filter_file_name` .
     /// </summary>
+    /// <remarks>
+    /// - enumerate the C\# sources by `iter_source()` .
+    /// </remarks>
     public static IEnumerable<string> iter_sources(string dname) {
         var seq = new List<string>();
         foreach (var fname in iter_files(dname)) {
             // fname = System.IO.Path.Combine(dbase, fbase);
             if (!fname.EndsWith(".cs")) {
+                continue;
+            }
+            if (cfg.filter_file_name(fname)) {
                 continue;
             }
             var f = System.IO.Path.GetFullPath(fname);
@@ -107,11 +125,13 @@ public class Parser {
     }
 
     /// <summary> <!-- extract_plain_and_xml_output {{{1 --> parse_source
-    /// </summary>
-    /// <remarks>
     /// - python version: can handle multi-encodings of documents.
     /// - C# version: did not handle multi-encodings,
     ///     you must choose single encoding.
+    /// </summary>
+    /// <remarks>
+    /// - strip triple slash lines from source `///`
+    ///     by `extract_plain_and_xml_text()` .
     /// </remarks>
     public static IEnumerable<string> extract_plain_and_xml_text(
             string fname
@@ -159,6 +179,11 @@ public class Parser {
 
     /// <summary> <!-- determine_function_name {{{1 --> parse source
     /// </summary>
+    /// <remarks>
+    /// - name the blocks from C\# statement on the next line,
+    ///     but the algo is simple and lazy...
+    ///     this process is specified in `determine_function_name()` .
+    /// </remarks>
     public static string determine_function_name(string src) {
         if (src.Contains("using")) {
             return "";
@@ -259,6 +284,15 @@ public class Parser {
 
     /// <summary> <!-- new {{{1 -->
     /// </summary>
+    /// <remarks>
+    /// ### parse single markdown file from XML.
+    /// - you can specify markdown style sheet by
+    ///     `Config.css_file_name` .
+    /// - you can choose the **tag name** of the XML
+    ///     by `Config.tags_output` .
+    ///     my choise is `remarks` to generate markdown.
+    ///     (it is not shown in intelli-sense)
+    /// </remarks>
     public Parser(XmlParser parser, string fname) {
         // type: (expat.Parser, Text) -> None
         if (fname != null) {
@@ -267,7 +301,7 @@ public class Parser {
             // this.fp = fname;
         }
         var s = String.Format("<link href=\"{0}\" rel=\"stylesheet\"></link>",
-                "tools/swiss.css");
+                cfg.css_file_name);
         TextFile.print(s);
 
         parser.StartElementHandler = this.enter_tag;
@@ -305,8 +339,9 @@ public class Parser {
         if (this.block_name.Length > 0) {
             Log.eror("block name: " + this.block_name);
             var s = cfg.format_block_name(this.block_name);
-            TextFile.print(s);
-            this.block_name = "";
+            if (s.Length > 0) {
+                TextFile.print(s);
+            }
         }
         TextFile.print(ret);
         blk.Clear();
@@ -375,6 +410,17 @@ public class Parser {
 
     /// <summary> <!-- Main {{{1 -->
     /// </summary>
+    /// <remarks> command line
+    /// ----
+    /// main program: parse command line and run parse sources and xml.
+    ///
+    /// ### command line arguments
+    ///
+    /// 1. directory name to search C\# sources. (default: `.` )
+    /// 2. header markdown. (default: `README.md` )
+    /// 3. output markdown. (default: `temp.md` )
+    ///
+    /// </remarks>
     public static void Main(String[] args) {
         var droot = (args.Length < 1) ? ".": args[0];
         var ftop = (args.Length < 2) ? "README.md": args[1];
@@ -384,9 +430,6 @@ public class Parser {
         make_header(ftop);
 
         foreach (var fname in iter_sources(droot)) {
-            if (cfg.filter_file_name(fname)) {
-                continue;
-            }
             var txt = "";
             foreach (var line in extract_plain_and_xml_text(fname)) {
                 var _line = line;

@@ -13,32 +13,63 @@ using System.Collections.Generic;
 
 using Log = PrePandoc.logging;
 
+/// <page>2</page>
 namespace PrePandoc {
+/// <remarks> class Config
+/// ---
+/// you can customize the behavior of this tools by
+/// editing this class.
+///
+/// </remarks>
 public class Config {
+    /// <remarks>- specify encoding.
+    /// </remarks>
     public static System.Text.Encoding enc =
             System.Text.Encoding.GetEncoding("utf-8");
 
+    /// <remarks>- do not output the empty comment block to markdown.
+    /// </remarks>
     public static bool f_output_empty_block = false;
+    /// <remarks>- specify markdown CSS file name.
+    /// </remarks>
+    public static string css_file_name = "swiss.css";
+    /// <remarks>- specify XML-tags to output markdown file.
+    /// </remarks>
     public static string[] tags_output = new[] {
         "remarks"};
         // "summary", "remarks"};
 
-    public static string format_block_name(string name) {  // {{{1
-        return "### " + name + "\n";
+    /// <remarks><!-- format_block_name {{{1 -->
+    /// - format the block name in markdown
+    /// </remarks>
+    public static string format_block_name(string name) {
+        return "";  // "### " + name + "\n";
     }
 
-    public static string format_file_name(string name) {  // {{{1
+    /// <remarks><!-- format_file_name {{{1 -->
+    /// - format the file name in markdown
+    /// </remarks>
+    public static string format_file_name(string name) {
         return "<!-- " + name + " -->\n";
     }
 
-    public static bool filter_file_name(string name) {  // {{{1
+    /// <remarks><!-- filter_file_name {{{1 -->
+    /// - specify the filtering of source file names.
+    /// </remarks>
+    public static bool filter_file_name(string name) {
         if (name.Contains("Designer.cs")) {
             return true;
         }
         return false;
     }
 
-    public static List<string> sort_files(List<string> seq) {  // {{{1
+    /// <remarks><!-- sort_files {{{1 -->
+    /// - specify the order of the source files.
+    ///
+    /// table of contents
+    /// ---
+    /// </remarks>
+    public static List<string> sort_files(List<string> seq) {
         var ret1 = new SortedDictionary<int, string>();
         var ret2 = new List<string>();
 
