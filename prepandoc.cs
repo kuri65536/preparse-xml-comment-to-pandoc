@@ -30,6 +30,7 @@ public class Parser {
     public string tag;
     public string tag_f;
     public string block_name;
+    public Dictionary<string, string> block_info;
     public List<string> block;
     public string dname_root;
 
@@ -307,7 +308,7 @@ public class Parser {
         parser.EndElementHandler = this.leave_tag;
         parser.CharacterDataHandler = this.chardata;
 
-        this.block_name = "";
+        this.block_info = new Dictionary<string, string>();
         this.tag = "";
         this.tag_f = "";
         this.block = new List<string>();
@@ -321,26 +322,25 @@ public class Parser {
     /// </summary>
     public void flash_output() {
         var blk = this.block;
-        Log.eror("flash: {0}", blk.Count);
+        Log.debg("flash: {0}", blk.Count);
         if (blk.Count < 1) {
+            Log.eror("block is empty(1): " + this.block_name);
             blk.Clear();
             return;
         }
 
         var ret = strip_indent(blk);
         if (is_empty(ret)) {
-            Log.eror("block is empty: " + this.block_name);
+            Log.eror("block is empty(2): " + this.block_name);
             if (!cfg.f_output_empty_block) {
                 blk.Clear();
                 return;
             }
         }
-        if (this.block_name.Length > 0) {
-            Log.eror("block name: " + this.block_name);
-            var s = cfg.format_block_name(this.block_name);
-            if (s.Length > 0) {
-                TextFile.print(s);
-            }
+        this.block_info.Add("name", this.block_name);
+        var s = cfg.format_block_head(this.block_info);
+        if (s.Length > 0) {
+            TextFile.print(s);
         }
         TextFile.print(ret);
         blk.Clear();
@@ -357,11 +357,13 @@ public class Parser {
         }
         if (cfg.tags_article.Contains(tagname)
                 && attrs.ContainsKey(cfg.attr_article)) {
-            Log.warn("detect tag-a {0}", tagname);
+            Log.debg("detect tag-a {0}", tagname);
+            this.block_info.Add(tagname, "1");
             this.tag = tagname;
         }
         if (cfg.tags_output.Contains(tagname)) {
-            Log.warn("detect tag-n {0}", tagname);
+            Log.debg("detect tag-n {0}", tagname);
+            this.block_info.Add(tagname, "1");
             this.tag = tagname;
         }
         if (tagname == "file") {
@@ -382,13 +384,13 @@ public class Parser {
             if (tagname == this.tag_f) {
                 this.tag_f = "";
             }
-            this.flash_output();
             return;
         }
         if (tagname == "block") {
             Log.warn("XML:leave block: " + this.block_name);
             this.tag = "";
             this.flash_output();
+            this.block_info.Clear();
             return;
         }
         if (tagname != this.tag) {

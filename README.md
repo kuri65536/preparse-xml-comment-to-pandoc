@@ -60,6 +60,7 @@ Change-Log
 
 ### 1.2.0
 - filter output of blocks by user specified tag or attribute.
+- insert block name by macro.
 - update XML document comment and update doxygen output.
 
 ### 1.1.0
@@ -85,7 +86,6 @@ TODO
 - use command line library.
 - setting files for customize behavior.
 - want: rename block-tag to member? it similar to msbuild output.
-- insert block name by macro.
 - parse indent of `&lt;remarks&gt; &lt;!-- some --&gt; start` to ` start`
 - block for class or method
 

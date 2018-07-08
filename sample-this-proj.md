@@ -65,6 +65,7 @@ Change-Log
 ### 1.2.0
 
 -   filter output of blocks by user specified tag or attribute.
+-   insert block name by macro.
 -   update XML document comment and update doxygen output.
 
 ### 1.1.0
@@ -93,7 +94,6 @@ TODO
 -   use command line library.
 -   setting files for customize behavior.
 -   want: rename block-tag to member? it similar to msbuild output.
--   insert block name by macro.
 -   parse indent of `<remarks> <!-- some --> start` to `start`
 -   block for class or method
 
@@ -147,23 +147,41 @@ class Config
 
 you can customize the behavior of this tools by editing this class.
 
--   specify the input file encoding.
+enc
 
--   do not output the empty comment block to markdown.
+:   specify the input file encoding.
 
--   specify markdown CSS file name.
+f\_output\_empty\_block
 
--   specify XML-tags to output markdown file.
+:   do not output the empty comment block to markdown.
 
--   output the tag which have attribute 'article' in `tag_article` .
+css\_file\_name
 
--   attribute name for `tags_article` .
+:   specify markdown CSS file name.
 
--   function to format the block name in markdown
+tags\_output
 
--   function to format the file name in markdown
+:   specify XML-tags to output markdown file.
 
--   function to specify the filtering of source file names.
+tags\_article
+
+: output the tag which have attribute 'article' in `tag_article` .
+
+attr\_article
+
+:   attribute name for `tags_article` .
+
+format\_block\_head
+
+: function to format the block name in markdown
+
+format\_file\_name
+
+: function to format the file name in markdown
+
+filter\_file\_name
+
+: function to specify the filtering of source file names.
 
 <!-- common.cs -->
 <!-- tests.cs -->
