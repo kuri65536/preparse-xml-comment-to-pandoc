@@ -86,7 +86,7 @@ TODO
 -   setting files for customize behavior.
 -   filter output of blocks by user specified tag or attribute.
 -   implement test.
--   want: rename block to member? to fit RFC.
+-   want: rename block-tag to member? it similar to msbuild output.
 -   insert block name by macro.
 -   parse indent of `<remarks> <!-- some --> start` to `start`
 -   specify toc title to pandoc.
@@ -158,4 +158,10 @@ table of contents
 -----------------
 
 <!-- common.cs -->
+<!-- tests.cs -->
+Tests
+-----
+
+test XmlParser
+:   check simple data and it's counting.
 

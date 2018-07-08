@@ -1,0 +1,51 @@
+# install NUnit {{{1
+ifeq (x,x)
+# install nunit by apt and into GAC.
+
+nunit_bin := nunit-console
+nunit_lib := /usr/lib/cli/nunit.framework-2.6.3/nunit.framework.dll
+
+.nunit:
+	apt install nunit-console
+	apt install libnunit-framework*
+	touch .nunit
+
+else
+# I could not install with nuget and Ubuntu18.04...
+# error:
+# Unhandled Exception:
+# System.TypeLoadException: Could not load type 'NUnit.Util.TestAgency' from assembly 'nunit.util,
+# Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77'.
+#   at NUnit.ConsoleRunner.Class1.Main (System.String[] args) [0x00001] in
+#   <c859a15002474b2d80ff38048271fce2>:0
+path_nunit := NUnit.2.6.4
+path_nunitr := NUnit.Runners.2.6.4
+export MONO_PATH:=$(CURDIR)/$(path_nunitr)/tools
+export MONO_PATH:=$(MONO_PATH):$(CURDIR)/$(path_nunit)/lib
+
+nunit_bin := mono ./$(path_nunitr)/tools/nunit-console.exe
+nunit_lib := $(path_nunit)/lib/nunit.framework.dll
+
+.nunit: $(path_nunit) $(path_nunitr)
+	touch .nunit
+
+$(path_nunit):
+	nuget install NUnit -version 2.6.4
+$(path_nunitr): $(path_nunit)
+	nuget install NUnit.Runners -version 2.6.4
+endif
+
+CS_OPTIONS_TEST = $(CS_OPTIONS) -r:$(nunit_lib)
+
+bin_test := prepandoc-test.exe
+src_test := $(src) tests.cs
+
+$(bin_test): $(src_test)
+	mcs $(CS_OPTIONS_TEST) -out:$@ $^
+
+test: $(bin_test) .nunit
+	# echo $$MONO_PATH
+	$(nunit_bin) $(bin_test) -noresult
+
+
+# vi: ft=make:et:ts=4:fdm=marker

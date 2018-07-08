@@ -23,8 +23,7 @@ CS_OPTIONS := -r:System.Windows.Forms.dll -r:System.Drawing.dll \
 bin := prepandoc.exe
 src := prepandoc.cs config.cs common.cs
 
-debug: $(bin)
-	mono --debug $(bin) $(path_doc) $(path_doc)/README.md
+all: doc
 
 build: $(bin)
 
@@ -45,7 +44,7 @@ opts_pandoc := \
 #              --bibliography "$(FB)" \
 #              --reference-doc="$(FT)" \
 
-doc:
+doc: $(bin)
 	# export PATH="$(PATH):$(pandoc_path)";
 	$(prepandoc) $(path_doc) $(path_doc)/README.md temp.md
 	$(pandoc) $(opts_pandoc1) -o $(output1) temp.md
@@ -53,3 +52,6 @@ doc:
 	$(launch) $(output)
 
 
+include Makefile.test
+
+# vi: ft=make:et:ts=4:fdm=marker

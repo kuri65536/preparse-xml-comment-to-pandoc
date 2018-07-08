@@ -60,6 +60,7 @@ Change-Log
 - make XML document comment in this project to sample-this-proj.md.
 - command line explanation.
 - move filtering '.cs' in filter_file_name function.
+- implement test environment.
 
 ### 1.0.0
 - C# version
@@ -77,8 +78,7 @@ TODO
 - use command line library.
 - setting files for customize behavior.
 - filter output of blocks by user specified tag or attribute.
-- implement test.
-- want: rename block to member? to fit RFC.
+- want: rename block-tag to member? it similar to msbuild output.
 - insert block name by macro.
 - parse indent of `&lt;remarks&gt; &lt;!-- some --&gt; start` to ` start`
 - specify toc title to pandoc.
