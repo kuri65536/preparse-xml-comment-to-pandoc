@@ -5,7 +5,6 @@ ifeq ($(platform),Linux)
     pandoc_tmps := 
     pandoc := $(pandoc_path)pandoc
     output := result.html
-    output1 := sample-this-proj.md
     launch := browse
 else  # for windows (msys).
     prepandoc := tools/prepandoc.exe
@@ -15,6 +14,7 @@ else  # for windows (msys).
     output := result.docx
     launch := start
 endif
+output1 := README.md
 
 CS_OPTIONS := -r:System.Windows.Forms.dll -r:System.Drawing.dll \
               -debug
@@ -39,6 +39,7 @@ path_doc := .
 
 opts_pandoc1 := \
                --toc -V toc-title:"table of contents" \
+               --include-after-body=CHANGE.log \
                --template=template1.tmpl
 #              -F pandoc-crossref \
 #              -M crossrefYaml="$(FC)" \
@@ -47,11 +48,17 @@ opts_pandoc1 := \
 
 doc: $(bin)
 	# export PATH="$(PATH):$(pandoc_path)";
-	$(prepandoc) $(path_doc) $(path_doc)/README.md temp.md
+	$(prepandoc) $(path_doc) $(path_doc)/source.md temp.md
 	$(pandoc) $(opts_pandoc1) -o $(output1) temp.md
 	$(pandoc) $(opts_pandoc) -o $(output) $(output1)
 	$(launch) $(output)
 
+ref: $(bin)
+	doxygen Doxyfile
+
+deploy: ver:=$(shell git tag | grep cs | sort | tail -n1)
+deploy: $(bin)
+	zip prepandoc-$(ver).zip $(bin) $(output1) LICENSE.txt
 
 include Makefile.test
 
