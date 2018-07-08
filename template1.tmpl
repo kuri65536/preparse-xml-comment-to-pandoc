@@ -1,0 +1,27 @@
+$body$
+$if(titleblock)$
+$titleblock$
+
+$endif$
+$if(toc)$
+$if(toc-title)$
+
+## $toc-title$
+
+$endif$
+$toc$
+
+$endif$
+
+$for(header-includes)$
+$header-includes$
+
+$endfor$
+$for(include-before)$
+$include-before$
+
+$endfor$
+$for(include-after)$
+
+$include-after$
+$endfor$

@@ -68,9 +68,6 @@ public class Config {
 
     /// <remarks><!-- sort_files {{{1 -->
     /// - specify the order of the source files.
-    ///
-    /// table of contents
-    /// ---
     /// </remarks>
     public static List<string> sort_files(List<string> seq) {
         var ret1 = new SortedDictionary<int, string>();

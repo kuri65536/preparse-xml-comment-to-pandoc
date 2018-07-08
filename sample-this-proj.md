@@ -66,6 +66,7 @@ Change-Log
 -   make XML document comment in this project to sample-this-proj.md.
 -   command line explanation.
 -   move filtering '.cs' in filter\_file\_name function.
+-   implement test environment.
 
 ### 1.0.0
 
@@ -85,7 +86,6 @@ TODO
 -   use command line library.
 -   setting files for customize behavior.
 -   filter output of blocks by user specified tag or attribute.
--   implement test.
 -   want: rename block-tag to member? it similar to msbuild output.
 -   insert block name by macro.
 -   parse indent of `<remarks> <!-- some --> start` to `start`
@@ -154,9 +154,6 @@ you can customize the behavior of this tools by editing this class.
 
 -   specify the order of the source files.
 
-table of contents
------------------
-
 <!-- common.cs -->
 <!-- tests.cs -->
 Tests
@@ -164,4 +161,27 @@ Tests
 
 test XmlParser
 :   check simple data and it's counting.
+
+## table of contents
+
+-   [XML comment pre-parser for C\#](#xml-comment-pre-parser-for-c)
+    -   [How to use](#how-to-use)
+        -   [requirements](#requirements)
+        -   [build and run](#build-and-run)
+        -   [Example output](#example-output)
+    -   [Change-Log](#change-log)
+        -   [1.1.0](#section)
+        -   [1.0.0](#section-1)
+        -   [0.1.0](#section-2)
+    -   [TODO](#todo)
+    -   [Please donate](#please-donate)
+    -   [How it works](#how-it-works)
+        -   [parse XML from C\# sources](#parse-xml-from-c-sources)
+        -   [parse single markdown file from
+            XML.](#parse-single-markdown-file-from-xml.)
+    -   [command line](#command-line)
+        -   [command line arguments](#command-line-arguments)
+    -   [class Config](#class-config)
+    -   [Tests](#tests)
+
 

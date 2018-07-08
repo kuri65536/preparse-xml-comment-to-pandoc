@@ -61,6 +61,7 @@ Change-Log
 - command line explanation.
 - move filtering '.cs' in filter_file_name function.
 - implement test environment.
+- specify toc title in pandoc framework.
 
 ### 1.0.0
 - C# version
@@ -81,7 +82,6 @@ TODO
 - want: rename block-tag to member? it similar to msbuild output.
 - insert block name by macro.
 - parse indent of `&lt;remarks&gt; &lt;!-- some --&gt; start` to ` start`
-- specify toc title to pandoc.
 
 
 Please donate

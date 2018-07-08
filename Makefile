@@ -37,8 +37,9 @@ FT := $(pandoc_tmps)/config/bibliography.bib
 
 path_doc := .
 
-opts_pandoc := \
-               --toc --template=template1.html
+opts_pandoc1 := \
+               --toc -V toc-title:"table of contents" \
+               --template=template1.tmpl
 #              -F pandoc-crossref \
 #              -M crossrefYaml="$(FC)" \
 #              --bibliography "$(FB)" \
