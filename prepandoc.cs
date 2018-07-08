@@ -36,7 +36,8 @@ public class Parser {
     static Regex rex_comment = new Regex(@"^ *\/\/\/");
     static Regex rex_white = new Regex(@"\s*");
 
-    /// <summary> <!-- make_header {{{1 --> parse source
+    /// <summary> <!-- make_header {{{1 --> parse source:
+    /// make the begining of XML and insert header file.
     /// </summary>
     /// <remarks>
     /// ### parse XML from C\# sources
@@ -289,6 +290,7 @@ public class Parser {
     ///     by `Config.tags_output` .
     ///     my choise is `remarks` to generate markdown.
     ///     (it is not shown in intelli-sense)
+    ///
     /// </remarks>
     public Parser(XmlParser parser, string fname) {
         // type: (expat.Parser, Text) -> None
@@ -349,18 +351,22 @@ public class Parser {
     public void enter_tag(string tagname,
                           Dictionary<String, String> attrs
     ) {
-        Log.eror("enter {0}", tagname);
-        // type: (Text, Dict[Text, Text]) -> None
+        Log.debg("enter {0}", tagname);
         if (tagname == "block") {
             this.block_name = !attrs.ContainsKey("name") ? "": attrs["name"];
+        }
+        if (cfg.tags_article.Contains(tagname)
+                && attrs.ContainsKey(cfg.attr_article)) {
+            Log.warn("detect tag-a {0}", tagname);
             this.tag = tagname;
         }
         if (cfg.tags_output.Contains(tagname)) {
+            Log.warn("detect tag-n {0}", tagname);
             this.tag = tagname;
         }
         if (tagname == "file") {
             this.tag_f = tagname;
-            var name = attrs["name"];
+            var name = attrs.ContainsKey("name") ? attrs["name"]: "";
             name = filename_relative(name);
             name = cfg.format_file_name(name);
             if (name.Length > 0) {
@@ -372,7 +378,6 @@ public class Parser {
     /// <summary> <!-- leave_tag {{{1 --> parse XML
     /// </summary>
     public void leave_tag(string tagname) {
-        Log.eror("leave {0}", tagname);
         if (tagname == "file") {
             if (tagname == this.tag_f) {
                 this.tag_f = "";
@@ -380,34 +385,38 @@ public class Parser {
             this.flash_output();
             return;
         }
-        if (tagname == "block" && tagname == this.tag) {
-            Log.warn("XML:found block: " + this.block_name);
+        if (tagname == "block") {
+            Log.warn("XML:leave block: " + this.block_name);
             this.tag = "";
             this.flash_output();
-            return;
-        }
-        if (!cfg.tags_output.Contains(tagname)) {
             return;
         }
         if (tagname != this.tag) {
             return;
         }
-        this.tag = "";
-        Log.debg("XML:leave output block {0}...", tagname);
+        if (cfg.tags_output.Contains(tagname)) {
+            this.tag = "";
+            return;
+        }
+        if (cfg.tags_article.Contains(tagname)) {
+            this.tag = "";
+            return;
+        }
     }
 
     /// <summary> <!-- chardata {{{1 --> parse XML
     /// </summary>
     public void chardata(String data) {
         Log.debg("XML:chardata: {0}", data);
-        if (cfg.tags_output.Contains(this.tag)) {
+        if (this.tag.Length > 0) {
             this.block.Add(data);
         }
     }
 
     /// <summary> <!-- Main {{{1 -->
     /// </summary>
-    /// <remarks> command line
+    /// <remarks>
+    /// command line
     /// ----
     /// main program: parse command line and run parse sources and xml.
     ///

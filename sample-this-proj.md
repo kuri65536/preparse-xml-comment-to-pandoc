@@ -57,9 +57,15 @@ $ pandoc -o doc.html temp.md
 
 -   generated the document in [this repository -
     sample](sample-this-proj.md)
+-   see my script in [Makefile](Makefile) `doc` section.
 
 Change-Log
 ----------
+
+### 1.2.0
+
+-   filter output of blocks by user specified tag or attribute.
+-   update XML document comment and update doxygen output.
 
 ### 1.1.0
 
@@ -67,6 +73,7 @@ Change-Log
 -   command line explanation.
 -   move filtering '.cs' in filter\_file\_name function.
 -   implement test environment.
+-   specify toc title in pandoc framework.
 
 ### 1.0.0
 
@@ -85,11 +92,10 @@ TODO
 
 -   use command line library.
 -   setting files for customize behavior.
--   filter output of blocks by user specified tag or attribute.
 -   want: rename block-tag to member? it similar to msbuild output.
 -   insert block name by macro.
 -   parse indent of `<remarks> <!-- some --> start` to `start`
--   specify toc title to pandoc.
+-   block for class or method
 
 Please donate
 -------------
@@ -141,18 +147,23 @@ class Config
 
 you can customize the behavior of this tools by editing this class.
 
--   specify encoding.
+-   specify the input file encoding.
+
 -   do not output the empty comment block to markdown.
+
 -   specify markdown CSS file name.
+
 -   specify XML-tags to output markdown file.
 
--   format the block name in markdown
+-   output the tag which have attribute 'article' in `tag_article` .
 
--   format the file name in markdown
+-   attribute name for `tags_article` .
 
--   specify the filtering of source file names.
+-   function to format the block name in markdown
 
--   specify the order of the source files.
+-   function to format the file name in markdown
+
+-   function to specify the filtering of source file names.
 
 <!-- common.cs -->
 <!-- tests.cs -->
@@ -170,9 +181,10 @@ test XmlParser
         -   [build and run](#build-and-run)
         -   [Example output](#example-output)
     -   [Change-Log](#change-log)
-        -   [1.1.0](#section)
-        -   [1.0.0](#section-1)
-        -   [0.1.0](#section-2)
+        -   [1.2.0](#section)
+        -   [1.1.0](#section-1)
+        -   [1.0.0](#section-2)
+        -   [0.1.0](#section-3)
     -   [TODO](#todo)
     -   [Please donate](#please-donate)
     -   [How it works](#how-it-works)

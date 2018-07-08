@@ -22,40 +22,47 @@ namespace PrePandoc {
 ///
 /// </remarks>
 public class Config {
-    /// <remarks>- specify encoding.
-    /// </remarks>
+    /// <summary a="1">- specify the input file encoding.
+    /// </summary>
     public static System.Text.Encoding enc =
             System.Text.Encoding.GetEncoding("utf-8");
 
-    /// <remarks>- do not output the empty comment block to markdown.
-    /// </remarks>
+    /// <summary a="1">- do not output the empty comment block to markdown.
+    /// </summary>
     public static bool f_output_empty_block = false;
-    /// <remarks>- specify markdown CSS file name.
-    /// </remarks>
+    /// <summary a="1">- specify markdown CSS file name.
+    /// </summary>
     public static string css_file_name = "swiss.css";
-    /// <remarks>- specify XML-tags to output markdown file.
-    /// </remarks>
+    /// <summary a="1">- specify XML-tags to output markdown file.
+    /// </summary>
     public static string[] tags_output = new[] {
         "remarks"};
-        // "summary", "remarks"};
+    /// <summary a="1">
+    /// - output the tag which have attribute 'article' in `tag_article` .
+    /// </summary>
+    public static string[] tags_article = new[] {
+        "summary"};
+    /// <summary a="1">- attribute name for `tags_article` .
+    /// </summary>
+    public static string attr_article = "a";
 
-    /// <remarks><!-- format_block_name {{{1 -->
-    /// - format the block name in markdown
-    /// </remarks>
+    /// <summary a="1"><!-- format_block_name {{{1 -->
+    /// - function to format the block name in markdown
+    /// </summary>
     public static string format_block_name(string name) {
         return "";  // "### " + name + "\n";
     }
 
-    /// <remarks><!-- format_file_name {{{1 -->
-    /// - format the file name in markdown
-    /// </remarks>
+    /// <summary a="1"><!-- format_file_name {{{1 -->
+    /// - function to format the file name in markdown
+    /// </summary>
     public static string format_file_name(string name) {
         return "<!-- " + name + " -->\n";
     }
 
-    /// <remarks><!-- filter_file_name {{{1 -->
-    /// - specify the filtering of source file names.
-    /// </remarks>
+    /// <summary a="1"><!-- filter_file_name {{{1 -->
+    /// - function to specify the filtering of source file names.
+    /// </summary>
     public static bool filter_file_name(string name) {
         if (!name.EndsWith(".cs")) {
             return true;
@@ -66,9 +73,9 @@ public class Config {
         return false;
     }
 
-    /// <remarks><!-- sort_files {{{1 -->
-    /// - specify the order of the source files.
-    /// </remarks>
+    /// <summary><!-- sort_files {{{1 -->
+    /// - function to specify the order of the source files.
+    /// </summary>
     public static List<string> sort_files(List<string> seq) {
         var ret1 = new SortedDictionary<int, string>();
         var ret2 = new List<string>();
@@ -91,6 +98,9 @@ public class Config {
         return ret3;
     }
 
+    /// <summary><!-- extract_order_from_file -->
+    /// - function to extract the orders of the source files.
+    /// </summary>
     private static int? extract_order_from_file(string fname) {
         String txt;
         try {

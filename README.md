@@ -48,13 +48,19 @@ $ prepandoc . README.md temp.md
 $ pandoc -o doc.html temp.md
 ```
 
+
 ### Example output
 
 - generated the document in [this repository - sample](sample-this-proj.md)
+- see my script in [Makefile](Makefile) `doc` section.
 
 
 Change-Log
 ---
+
+### 1.2.0
+- filter output of blocks by user specified tag or attribute.
+- update XML document comment and update doxygen output.
 
 ### 1.1.0
 - make XML document comment in this project to sample-this-proj.md.
@@ -78,10 +84,10 @@ TODO
 ---
 - use command line library.
 - setting files for customize behavior.
-- filter output of blocks by user specified tag or attribute.
 - want: rename block-tag to member? it similar to msbuild output.
 - insert block name by macro.
 - parse indent of `&lt;remarks&gt; &lt;!-- some --&gt; start` to ` start`
+- block for class or method
 
 
 Please donate
