@@ -1,6 +1,8 @@
 let g:ale_cs_mcsc_options = "-r:System.Drawing.dll"
                           \ ." -r:System.Windows.Forms.dll"
                           \ ." -r:System.Xml.dll"
+    \ ." -r:./Mono.Options.5.3.0.1/lib/net4-client/Mono.Options.dll"
+    \ ." -r:/usr/lib/cli/nunit.framework-2.6.3/nunit.framework.dll"
 " let g:ale_cs_mcsc_assemblies = ["System.Drawing.dll", "System.Windows.Forms.dll"]
-setlocal errorformat="%f(%l\,%c): %trror %m"
+let &errorformat = '%f(%l\,%c): %trror CS%n: %m'
 

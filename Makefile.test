@@ -20,8 +20,6 @@ else
 #   <c859a15002474b2d80ff38048271fce2>:0
 path_nunit := NUnit.2.6.4
 path_nunitr := NUnit.Runners.2.6.4
-export MONO_PATH:=$(CURDIR)/$(path_nunitr)/tools
-export MONO_PATH:=$(MONO_PATH):$(CURDIR)/$(path_nunit)/lib
 
 nunit_bin := mono ./$(path_nunitr)/tools/nunit-console.exe
 nunit_lib := $(path_nunit)/lib/nunit.framework.dll
@@ -43,8 +41,11 @@ src_test := $(src) tests.cs
 $(bin_test): $(src_test)
 	mcs $(CS_OPTIONS_TEST) -out:$@ $^
 
+test: export MONO_PATH:=$(CURDIR)/$(path_nunitr)/tools
+test: export MONO_PATH:=$(MONO_PATH):$(CURDIR)/$(path_nunit)/lib
+test: export MONO_PATH:=$(MONO_PATH):$(path_opt)
 test: $(bin_test) .nunit
-	# echo $$MONO_PATH
+	echo $$MONO_PATH
 	$(nunit_bin) $(bin_test) -noresult
 
 

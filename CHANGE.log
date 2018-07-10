@@ -1,6 +1,5 @@
 TODO
 ---
-- use command line library.
 - setting files for customize behavior.
 - want: rename block-tag to member? it similar to msbuild output.
 - parse indent of `<remarks> <!-- some --> start` to ` start`
@@ -9,6 +8,8 @@ TODO
 
 Change-Log
 ---
+### 1.4.0
+- use command line library.
 
 ### 1.3.0
 - new packaging.

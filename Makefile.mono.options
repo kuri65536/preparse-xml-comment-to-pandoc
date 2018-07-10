@@ -1,0 +1,8 @@
+
+mono_dname := Mono.Options.5.0.3.1
+
+install_monooptions: $(mono_dname)
+
+$(mono_dname):
+	nuget install Mono.Options -version 5.0.3.1
+
