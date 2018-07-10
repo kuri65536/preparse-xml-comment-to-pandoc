@@ -1,8 +1,13 @@
 
-mono_dname := Mono.Options.5.0.3.1
+bin_opt:=./Mono.Options.dll
+path_opt:=./Mono.Options.5.3.0.1
 
-install_monooptions: $(mono_dname)
+install_options: $(bin_opt)
 
-$(mono_dname):
+$(path_opt):
 	nuget install Mono.Options -version 5.0.3.1
+
+$(bin_opt): $(path_opt)
+	cp $^/lib/net4-client/$@ .
+# did not work with -r:$(path_opt)/lib/netstandard1.3/Mono.Options.dll
 

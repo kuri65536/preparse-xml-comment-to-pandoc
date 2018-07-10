@@ -16,18 +16,19 @@ else  # for windows (msys).
 endif
 output1 := README.md
 
-path_opt:=./Mono.Options.5.3.0.1/lib/net4-client
+all: doc
+
+include Makefile.mono.options
+
 
 CS_OPTIONS := -r:System.Windows.Forms.dll -r:System.Drawing.dll \
-              -r:$(path_opt)/Mono.Options.dll \
+              -r:$(bin_opt) \
               -debug
-              # -r:./Mono.Options.5.3.0.1/lib/netstandard1.3/Mono.Options.dll \
 # CS_OPTIONS += -r:System.Collections.Generic.dll
 
 bin := prepandoc.exe
 src := prepandoc.cs config.cs common.cs
 
-all: doc
 
 build: $(bin)
 
@@ -50,7 +51,6 @@ opts_pandoc1 := \
 #              --bibliography "$(FB)" \
 #              --reference-doc="$(FT)" \
 
-doc: export MONO_PATH :=$(path_opt)
 doc: $(bin)
 	# export PATH="$(PATH):$(pandoc_path)";
 	$(prepandoc) $(path_doc) $(path_doc)/source.md temp.md
@@ -62,11 +62,10 @@ ref: $(bin)
 	doxygen Doxyfile
 
 deploy: ver:=$(shell git tag | grep cs | sort | tail -n1)
-deploy: $(bin)
-	zip prepandoc-$(ver).zip $(bin) $(output1) LICENSE.txt
+deploy: $(bin) $(bin_opt)
+	zip prepandoc-$(ver).zip $^ $(output1) LICENSE.txt
 
 include Makefile.test
 
-include Makefile.mono.options
 
 # vi: ft=make:et:ts=4:fdm=marker

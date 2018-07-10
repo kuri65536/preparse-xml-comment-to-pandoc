@@ -164,20 +164,20 @@ test XmlParser
 
 TODO
 ---
-- use command line library.
 - setting files for customize behavior.
 - want: rename block-tag to member? it similar to msbuild output.
 - parse indent of `<remarks> <!-- some --> start` to ` start`
 - block for class or method
-- append footer markdown.
 
 
 Change-Log
 ---
 
 ### 1.3.0
-- split CHANGE.log from README.md
 - new packaging.
+- split CHANGE.log from README.md
+- append footer markdown (by pandoc).
+- use command line library.
 
 ### 1.2.0
 - filter output of blocks by user specified tag or attribute.
