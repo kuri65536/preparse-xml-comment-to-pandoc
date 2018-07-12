@@ -51,9 +51,18 @@ $ pandoc -o doc.html temp.md
 
 ### Example output
 
-- generated the document in [this repository - sample](sample-this-proj.md)
+- generated the document in [this repository - readme](README.md)
+- generated the reference in [this repository - html](html/index.html)
 - see my script in [Makefile](Makefile) `doc` section.
 
+```bash
+$ unzip prepandoc-cs1.3.0.zip
+$ git clone https://github.com/kuri65536/preparse-xml-comment-to-pandoc test
+$ cd test
+$ ../prepandoc . source.md README2.md
+$ pandoc -o result.html README2.md
+$ browse result.html
+```
 
 
 Check latest release
