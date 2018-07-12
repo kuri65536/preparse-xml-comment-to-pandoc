@@ -32,7 +32,7 @@ src := prepandoc.cs config.cs common.cs versions.cs
 
 build: $(bin)
 
-$(bin): $(src) tag
+$(bin): $(src)
 	mcs $(CS_OPTIONS) -out:$@ $(filter-out tag,$^)
 
 
@@ -61,14 +61,20 @@ doc: $(bin)
 ref: $(bin)
 	doxygen Doxyfile
 
-ifeq (x$(tag),)
-tag:
-	echo not specified
+ifeq (x$(tag),x)
 else
-tag:
-	git tag $(tag) $(tag_force)
+FORCE:
+.PHONY: FORCE
+
+ifeq (x$(tag_force),x)
+else
+_tag_force:=|| echo
+endif
+
+versions.cs: FORCE
+	git tag $(tag) $(_tag_force)
 	sed -i.bak1 's/ver = ".*"/ver = "$(tag)"/' versions.cs
-	ref=$$(git tag --sort=creatordate \
+	ref=$$(git tag --sort=-creatordate \
 	               --format='%(objectname:short)' | head -n1); \
 	echo $$ref; \
 	sed -i.bak2 "s/rev = \".*\"/rev = \"$$ref\"/" versions.cs

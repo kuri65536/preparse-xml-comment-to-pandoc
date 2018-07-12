@@ -55,9 +55,18 @@ $ pandoc -o doc.html temp.md
 
 ### Example output
 
--   generated the document in [this repository -
-    sample](sample-this-proj.md)
+-   generated the document in [this repository - readme](README.md)
+-   generated the reference in [this repository - html](html/index.html)
 -   see my script in [Makefile](Makefile) `doc` section.
+
+``` {.bash}
+$ unzip prepandoc-cs1.3.0.zip
+$ git clone https://github.com/kuri65536/preparse-xml-comment-to-pandoc test
+$ cd test
+$ ../prepandoc . source.md README2.md
+$ pandoc -o result.html README2.md
+$ browse result.html
+```
 
 Check latest release
 --------------------
@@ -162,16 +171,24 @@ Tests
 test XmlParser
 :   check simple data and it's counting.
 
+<!-- versions.cs -->
+
 TODO
 ---
-- setting files for customize behavior.
+- want: setting files for customize behavior.
 - want: rename block-tag to member? it similar to msbuild output.
+- want: invoke pandoc with recommend options. (did not use Makefile for newbie)
 - parse indent of `<remarks> <!-- some --> start` to ` start`
-- block for class or method
+- want: indicates the block for class or method
 
 
 Change-Log
 ---
+
+### 1.4.0
+- versioning into message
+- update reference documents by doxygen output.
+- fix: output <all> tag if source.md is missing.
 
 ### 1.3.0
 - new packaging.

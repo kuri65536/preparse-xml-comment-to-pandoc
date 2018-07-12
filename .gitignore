@@ -3,4 +3,5 @@ prepandoc-test.exe*
 temp.*
 .nunit
 Mono.Options*
+*.bak*
 
