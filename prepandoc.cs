@@ -6,6 +6,7 @@
 /// v.2.0. If a copy of the MPL was not distributed with this file,
 /// You can obtain one at https://mozilla.org/MPL/2.0/.
 ///
+/// <page>1</page>
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -15,10 +16,9 @@ using System.Security;
 using Log = PrePandoc.logging;  // import debug as debg, error as eror
 using cfg = PrePandoc.Config;
 
-/// <page>1</page>
 namespace PrePandoc {
 
-/// <summary> <!-- Parser {{{1 -->
+/// <summary> <!-- Parser {{{1 --> The main class of this project.
 /// </summary>
 /// <remarks>
 /// How it works
@@ -63,7 +63,8 @@ public class Parser {
         return all;
     }
 
-    /// <summary> <!-- filename_relative {{{1 -->
+    /// <summary> <!-- filename_relative {{{1 --> utility,
+    /// strip the directory of a root from path string.
     /// </summary>
     public string filename_relative(string path) {
         var droot = System.IO.Path.GetFullPath(this.dname_root);
@@ -167,7 +168,8 @@ public class Parser {
         yield return "</file>\n";
     }
 
-    /// <summary> <!-- strip_comment {{{1 --> parse source
+    /// <summary> <!-- strip_comment {{{1 --> parse source,
+    /// strip the head `///` and quote some strings for XML.
     /// </summary>
     public static string strip_comment(string line) {
         var ret = rex_comment.Replace(line, "");
@@ -176,7 +178,8 @@ public class Parser {
         return ret;
     }
 
-    /// <summary> <!-- determine_function_name {{{1 --> parse source
+    /// <summary> <!-- determine_function_name {{{1 --> parse source,
+    /// determine the name of identifier at the bottom of comment block.
     /// </summary>
     /// <remarks>
     /// - name the blocks from C\# statement on the next line,
@@ -234,7 +237,8 @@ public class Parser {
         return src;
     }
 
-    /// <summary> <!-- strip_indent {{{1 --> parse XML
+    /// <summary> <!-- strip_indent {{{1 --> part of parse XML,
+    /// strip indent from content block.
     /// </summary>
     public string strip_indent(List<string> block) {
         var src = String.Join("", block);
@@ -273,7 +277,8 @@ public class Parser {
         return ret;
     }
 
-    /// <summary> <!-- is_empty {{{1 --> parse XML
+    /// <summary> <!-- is_empty {{{1 --> part of parse XML,
+    /// check the content string is empty.
     /// </summary>
     public static bool is_empty(string src) {
         var ret = rex_white.Replace(src, "");
@@ -281,7 +286,8 @@ public class Parser {
     }
 
 
-    /// <summary> <!-- new {{{1 -->
+    /// <summary> <!-- new {{{1 --> part of parse XML,
+    /// regist callbacks to XmlParser, and clear the callback status variables.
     /// </summary>
     /// <remarks>
     /// ### parse single markdown file from XML.
@@ -318,7 +324,8 @@ public class Parser {
         // just for ignore warnings.
     }
 
-    /// <summary> <!-- flash_output {{{1 --> parse XML
+    /// <summary> <!-- flash_output {{{1 --> part of parse XML.
+    /// append the cached block text into the markdown file.
     /// </summary>
     public void flash_output() {
         var blk = this.block;
@@ -346,8 +353,11 @@ public class Parser {
         blk.Clear();
     }
 
-    /// <summary> <!-- enter_tag {{{1 --> parse XML
+    /// <summary> <!-- enter_tag {{{1 --> part of parse XML.
+    /// the callback from XmlParser when parser found begining of tags.
     /// </summary>
+    /// <param name="tagname">begining tag name</param>
+    /// <param name="attrs">attributes of the tag</param>
     public void enter_tag(string tagname,
                           Dictionary<String, String> attrs
     ) {
@@ -377,7 +387,8 @@ public class Parser {
         }
     }
 
-    /// <summary> <!-- leave_tag {{{1 --> parse XML
+    /// <summary> <!-- leave_tag {{{1 --> part of parse XML.
+    /// the callback from XmlParser when parser found end of tags.
     /// </summary>
     public void leave_tag(string tagname) {
         if (tagname == "file") {
@@ -407,7 +418,9 @@ public class Parser {
     }
 
     /// <summary> <!-- chardata {{{1 --> parse XML
+    /// the callback from XmlParser when parser found data block.
     /// </summary>
+    /// <param name="data">data block contents as string</param>
     public void chardata(String data) {
         Log.debg("XML:chardata: {0}", data);
         if (this.tag.Length > 0) {

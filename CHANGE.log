@@ -6,7 +6,6 @@ TODO
 - parse indent of `<remarks> <!-- some --> start` to ` start`
 - want: indicates the block for class or method
 - fix: output <all> tag if source.md is missing.
-- update reference documents by doxygen output.
 
 
 Change-Log
@@ -14,6 +13,7 @@ Change-Log
 
 ### 1.4.0
 - versioning into message
+- update reference documents by doxygen output.
 
 ### 1.3.0
 - new packaging.
