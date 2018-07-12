@@ -48,16 +48,17 @@ public class Parser {
         try {
             txt = System.IO.File.ReadAllText(ftop, cfg.enc);
         } catch (Exception) {
-            return null;
+            txt = "<!-- file is not found! -->";
         }
+        var tag = cfg.tags_output.Length > 0 ? cfg.tags_output[0]: "summary";
 
         var all = TextFile.print("<all>\n");
         // var fname = filename_relative(ftop);
         all += TextFile.print("<file name=\"{0}\">", ftop);
         all += TextFile.print("<block name=\"top\">");
-        all += TextFile.print("<{0}>", cfg.tags_output[0]);
+        all += TextFile.print("<{0}>", tag);
         all += TextFile.print(txt);
-        all += TextFile.print("</{0}>", cfg.tags_output[0]);
+        all += TextFile.print("</{0}>", tag);
         all += TextFile.print("</block>\n");
         all += TextFile.print("</file>\n");
         return all;
