@@ -27,13 +27,13 @@ CS_OPTIONS := -r:System.Windows.Forms.dll -r:System.Drawing.dll \
 # CS_OPTIONS += -r:System.Collections.Generic.dll
 
 bin := prepandoc.exe
-src := prepandoc.cs config.cs common.cs
+src := prepandoc.cs config.cs common.cs versions.cs
 
 
 build: $(bin)
 
-$(bin): $(src)
-	mcs $(CS_OPTIONS) -out:$@ $^
+$(bin): $(src) tag
+	mcs $(CS_OPTIONS) -out:$@ $(filter-out tag,$^)
 
 
 FC := $(pandoc_tmps)/template/template_meiryo.docx
@@ -60,6 +60,19 @@ doc: $(bin)
 
 ref: $(bin)
 	doxygen Doxyfile
+
+ifeq (x$(tag),)
+tag:
+	echo not specified
+else
+tag:
+	git tag $(tag) $(tag_force)
+	sed -i.bak1 's/ver = ".*"/ver = "$(tag)"/' versions.cs
+	ref=$$(git tag --sort=creatordate \
+	               --format='%(objectname:short)' | head -n1); \
+	echo $$ref; \
+	sed -i.bak2 "s/rev = \".*\"/rev = \"$$ref\"/" versions.cs
+endif
 
 deploy: ver:=$(shell git tag | grep cs | sort | tail -n1)
 deploy: $(bin) $(bin_opt)

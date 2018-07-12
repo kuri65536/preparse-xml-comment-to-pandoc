@@ -121,14 +121,16 @@ public class XmlParser {
     public FuncXmlParseEnd EndElementHandler;
     public FuncXmlParseData CharacterDataHandler;
 
-    /// <summary> <!-- Parse {{{1 -->
+    /// <summary> <!-- Parse {{{1 --> start to run parsing the XML
+    /// from string.
     /// </summary>
     public void Parse(string src) {
         var strreader = new StringReader(src);
         this.Parse(strreader);
     }
 
-    /// <summary> <!-- Pasre {{{1 -->
+    /// <summary> <!-- Pasre {{{1 --> start to run parsing the XML
+    /// from the stream.
     /// </summary>
     public void Parse(TextReader src) {
         // var stgs = new XmlReaderSettings();
@@ -168,7 +170,8 @@ public class XmlParser {
         src.Close();
     }
 
-    /// <summary> <!-- parse_attributes {{{1 -->
+    /// <summary> <!-- parse_attributes {{{1 --> helper function
+    /// to get the XML tag attributes.
     /// </summary>
     public Dictionary<string, string> parse_attributes(
             XmlReader reader
@@ -191,20 +194,37 @@ public class XmlParser {
     }
 }
 
+/// <summary> <!-- Options {{{1 --> parser class of the command line options
+/// and arguments.
+/// </summary>
 public class Options {
+    /// <summary> <!-- run {{{1 --> define the Mono.Options.OptionSet
+    /// and parse the command line with it.
+    ///
+    /// then parse the 3 arguments
+    ///
+    /// 1. document root dirctory.
+    /// 2. header markdown file.
+    /// 3. output markdown file.
+    /// </summary>
     public static bool run(
         String[] args, out string droot, out string ftop, out string fout
     ) {
-        bool ret = false;
+        var ret = 0;
         string _ftop = "source.md", _fout = "temp.md", msg = "";
         droot = ".";
 
         var suite = new Mono.Options.OptionSet() {
+            string_version(),
             "usage: prepandoc.exe [options]+ [directory] [header] [output]",
-            {"h", "help", v => {ret = true;}},
-            {"v=|verbose", "verbose level (0-99)", (int? v) => {
+            "  directory:   document search directory",
+            "  header-file: markdown file for the document header",
+            "  output-file: file name for markdown output",
+            " [options]",
+            {"h|help", "output this help message.", v => {ret = 1;}},
+            {"v=|verbose=", "verbose level (0-99)", (int? v) => {
                 var l = v.HasValue ? v.Value: logging.__level__;
-                if (l < 0 || l > 99) {ret = true;}
+                if (l < 0 || l > 99) {ret = 1;}
                 logging.__level__ = l;
              }},
             {"b=|header=", "output markdown file before parse sources.",
@@ -244,7 +264,7 @@ public class Options {
                 msg += "\nspecified output tags with attribute: " +
                        String.Join(",", cfg.tags_article);}},
             {"version", "output version string.", v => {
-                ret = show_version();}}
+                ret = 2;}}
         };
 
         List<string> extra = null;
@@ -252,12 +272,15 @@ public class Options {
             extra = suite.Parse(args);
         } catch (OptionException e) {
             Console.WriteLine(e.Message);
-            ret = true;
+            ret = 1;
         }
         ftop = _ftop;
         fout = _fout;
-        if (ret) {
+        if (ret == 1) {
             suite.WriteOptionDescriptions(Console.Out);
+            return true;
+        } else if (ret == 2) {
+            Console.WriteLine(string_version());
             return true;
         }
         if (extra != null && extra.Count >= 1 && extra[0].Length > 0) {
@@ -280,26 +303,17 @@ public class Options {
         return false;
     }
 
-    public static bool show_version() {
+    /// <summary> <!-- show_version {{{1 --> output version string to console.
+    /// </summary>
+    public static string string_version() {
         var msg = String.Format("prepandoc.exe version {0}-{1}",
-                                "cs1.3.0",   // version
-                                "0000000");  // git-hash
-        Console.WriteLine(msg);
-        return true;
+                                Versions.ver, Versions.rev);
+        return msg;
     }
 
-    public static bool show_help() {
-        foreach (var msg in new[] {
-            "  directory:   document search directory",
-            "  header-file: markdown file for the document header",
-            "  output-file: file name for markdown output",
-            "",
-        }) {
-            Console.WriteLine(msg);
-        }
-        return true;
-    }
-
+    /// <summary> <!-- parse_string {{{1 --> parse a string option.
+    /// ignore null input or zero length.
+    /// </summary>
     public static string parse_string(string src, string _default
     ) {
         if (src == null || src.Length < 1) {
@@ -308,6 +322,9 @@ public class Options {
         return src;
     }
 
+    /// <summary> <!-- parse_boolean {{{1 --> parse a boolean option.
+    /// determine the value from the default's oposite patterns.
+    /// </summary>
     public static bool parse_boolean(string src, bool _default) {
         if (src == null) {
             return _default;
@@ -325,6 +342,8 @@ public class Options {
         return _default;
     }
 
+    /// <summary> <!-- parse_tags {{{1 --> parse string list option.
+    /// </summary>
     public static string[] parse_tags(string src, string[] _default) {
         if (src == null || src.Length < 1) {
             return _default;

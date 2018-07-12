@@ -1,13 +1,19 @@
 TODO
 ---
-- setting files for customize behavior.
+- want: setting files for customize behavior.
 - want: rename block-tag to member? it similar to msbuild output.
+- want: invoke pandoc with recommend options. (did not use Makefile for newbie)
 - parse indent of `<remarks> <!-- some --> start` to ` start`
-- block for class or method
+- want: indicates the block for class or method
+- fix: output <all> tag if source.md is missing.
+- update reference documents by doxygen output.
 
 
 Change-Log
 ---
+
+### 1.4.0
+- versioning into message
 
 ### 1.3.0
 - new packaging.
