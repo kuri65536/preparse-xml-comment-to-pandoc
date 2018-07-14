@@ -66,7 +66,8 @@ public class Config {
         if (!info.ContainsKey("summary")) {
             return "";
         }
-        return name + "\n";  // "### " + name + "\n";
+        // auto add tail "\n".
+        return name;  // "### " + name;
     }
 
     /// <summary a="1"><!-- format_file_name {{{1 -->

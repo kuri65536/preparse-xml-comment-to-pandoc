@@ -268,6 +268,9 @@ public class Parser {
 
         var ret = "";
         foreach (var line in lines) {
+            if (ret.Length < 1 && line.Length < 1) {
+                continue;
+            }
             if (line.Length < ind) {
                 ret += line;
             } else {

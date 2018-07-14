@@ -109,17 +109,6 @@ How it works
     my choise is `remarks` to generate markdown. (it is not shown in
     intelli-sense)
 
-command line
-------------
-
-main program: parse command line and run parse sources and xml.
-
-### command line arguments
-
-1.  directory name to search C\# sources. (default: `.` )
-2.  header markdown. (default: `README.md` )
-3.  output markdown. (default: `temp.md` )
-
 <!-- config.cs -->
 Configuration
 -------------
@@ -129,41 +118,112 @@ you can customize the behavior of this tools by editing this config.cs -
 
 enc
 
-:   specify the input file encoding.
+:   -   specify the input file encoding.
+    -   this can be override with `--encoding` option.
 
 f\_output\_empty\_block
 
-:   do not output the empty comment block to markdown.
+:   -   do not output the empty comment block to markdown.
+    -   this can be override with `--empty-block` option.
 
 css\_file\_name
 
-:   specify markdown CSS file name.
+:   -   specify markdown CSS file name.
+    -   this can be override with `--css` option.
 
 tags\_output
 
-:   specify XML-tags to output markdown file.
+:   -   specify XML-tags to output markdown file.
+    -   this can be override with `--output-tags` option.
 
 tags\_article
 
-: output the tag which have attribute 'article' in `tag_article` .
+:   -   output the tag which have attribute specified in `attr_article`
+        .
+    -   this can be override with `--article-tags` option.
 
 attr\_article
 
-:   attribute name for `tags_article` .
+:   -   attribute name for `tags_article` .
+    -   this can be override with `--attribute` option.
 
 format\_block\_head
 
-: function to format the block name in markdown
+:   -   function to format the block name in markdown.
+    -   this is hard code behavior, you can edit with rebuild this tool.
 
 format\_file\_name
 
-: function to format the file name in markdown
+:   -   function to format the file name in markdown.
+    -   this is hard code behavior, you can edit with rebuild this tool.
 
 filter\_file\_name
 
-: function to specify the filtering of source file names.
+:   -   function to specify the filtering of source file names.
+    -   this is hard code behavior, you can edit with rebuild this tool.
 
 <!-- common.cs -->
+### Command-line arguments
+
+this program parse command line and then run. main arguments are the
+below 3.
+
+1.  document root dirctory. : default `.`
+2.  header markdown file. : default `source.md`
+3.  output markdown file. : default `temp.md`
+
+### Command-line options
+
+option `-h` or `--help`
+
+:   -   output help message
+
+option `-v` or `--verbose`
+
+:   -   set the output log-level.
+    -   it is equivalent to change logging.**level**.
+
+option `-b` or `--header`
+
+:   -   specify header markdown file before parse sources.
+
+option `-o` or `--output`
+
+:   -   the file name of markdown output.
+
+option `-e` or `--encoding`
+
+:   -   specify the input files encoding, all of source files open with
+        this encoding.
+    -   this is equivalent to change `Config.encoding`
+
+option `-a` or `--attribute`
+
+:   -   specify the XML attribute name
+    -   this option use with `--article-tag` option
+
+option `-c` or `--css`
+
+:   -   the embedded CSS file name in markdown.
+
+option `-E` or `--empty-block`
+
+:   -   enable/disable to output the empty blocks into markdown.
+
+option `-O` or `--output-tags`
+
+:   -   tag-name to output into markdown.
+
+option `-A` or `--article-tags`
+
+:   -   tag-name to output into markdown (with attributes).
+    -   this tag is not output without attribute, attribute name can be
+        specified with `--attribute` option.
+
+option `--version`
+
+:   -   output the version message and then exit.
+
 <!-- tests.cs -->
 Tests
 -----
@@ -180,10 +240,16 @@ TODO
 - want: invoke pandoc with recommend options. (did not use Makefile for newbie)
 - parse indent of `<remarks> <!-- some --> start` to ` start`
 - want: indicates the block for class or method
+- want: improve format_file_name function to see option.
+- want: improve filter_file_name function to see optinos.
 
 
 Change-Log
 ---
+
+### 1.4.1
+- fix error with block_name contains '{' (String.Format expression)
+- update XML document comment on command line options.
 
 ### 1.4.0
 - versioning into message
@@ -231,9 +297,9 @@ Change-Log
         -   [parse XML from C\# sources](#parse-xml-from-c-sources)
         -   [parse single markdown file from
             XML.](#parse-single-markdown-file-from-xml.)
-    -   [command line](#command-line)
-        -   [command line arguments](#command-line-arguments)
     -   [Configuration](#configuration)
+        -   [Command-line arguments](#command-line-arguments)
+        -   [Command-line options](#command-line-options)
     -   [Tests](#tests)
 
 
