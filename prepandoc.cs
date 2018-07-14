@@ -50,6 +50,8 @@ public class Parser {
         } catch (Exception) {
             txt = "<!-- file is not found! -->";
         }
+        // txt = Uri.EscapeDataString(txt);
+        txt = SecurityElement.Escape(txt);
         var tag = cfg.tags_output.Length > 0 ? cfg.tags_output[0]: "summary";
 
         var all = TextFile.print("<all>\n");
@@ -372,12 +374,20 @@ public class Parser {
         if (cfg.tags_article.Contains(tagname)
                 && attrs.ContainsKey(cfg.attr_article)) {
             Log.debg("detect tag-a {0}", tagname);
-            this.block_info.Add(tagname, "1");
+            if (this.block_info.ContainsKey(tagname)) {
+                Log.eror("already detected {0}", tagname);
+            } else {
+                this.block_info.Add(tagname, "1");
+            }
             this.tag = tagname;
         }
         if (cfg.tags_output.Contains(tagname)) {
             Log.debg("detect tag-n {0}", tagname);
-            this.block_info.Add(tagname, "1");
+            if (this.block_info.ContainsKey(tagname)) {
+                Log.eror("already detected {0}", tagname);
+            } else {
+                this.block_info.Add(tagname, "1");
+            }
             this.tag = tagname;
         }
         if (tagname == "file") {

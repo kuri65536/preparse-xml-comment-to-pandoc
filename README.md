@@ -53,11 +53,39 @@ $ prepandoc . README.md temp.md
 $ pandoc -o doc.html temp.md
 ```
 
-### Example output
+Example output
+--------------
+
+### 1. this project output
 
 -   generated the document in [this repository - readme](README.md)
 -   generated the reference in [this repository - html](html/index.html)
 -   see my script in [Makefile](Makefile) `doc` section.
+
+### 2. sample output
+
+-   here is C\# code.
+
+``` {.c#}
+namespace {
+/// <remarks>
+/// sample
+/// ===
+/// output order from up to low in file.
+/// </remarks>
+public class abc {
+    /// <summary a="1"> program start point
+    /// </summary>
+    /// <remarks>
+    /// some explanation here.
+    /// </remarks>
+    public void main() {
+    }
+}
+}
+```
+
+-   use prepandoc.exe
 
 ``` {.bash}
 $ unzip prepandoc-cs1.3.0.zip
@@ -66,6 +94,19 @@ $ cd test
 $ ../prepandoc . source.md README2.md
 $ pandoc -o result.html README2.md
 $ browse result.html
+```
+
+-   then, you got a markdown file from C\# source
+
+``` {.markdown}
+sample
+===
+output order from up to low in file.
+
+### main
+program start point
+
+some explanation here.
 ```
 
 Check latest release
@@ -84,6 +125,9 @@ If you are feel to nice for this software, please donation to my
 -   Bitcoin **| 1FTBAUaVdeGG9EPsGMD5j2SW8QHNc5HzjT |**
 -   or Ether **| 0xd7Dc5cd13BD7636664D6bf0Ee8424CFaF6b2FA8f |** .
 
+<!--
+ vi: ft=markdown
+ -->
 <!-- prepandoc.cs -->
 How it works
 ------------
@@ -238,7 +282,6 @@ TODO
 - want: setting files for customize behavior.
 - want: rename block-tag to member? it similar to msbuild output.
 - want: invoke pandoc with recommend options. (did not use Makefile for newbie)
-- parse indent of `<remarks> <!-- some --> start` to ` start`
 - want: indicates the block for class or method
 - want: improve format_file_name function to see option.
 - want: improve filter_file_name function to see optinos.
@@ -249,6 +292,9 @@ Change-Log
 
 ### 1.4.1
 - fix error with block_name contains '{' (String.Format expression)
+- fix: parse indent of `<remarks> <!-- some --> start` to ` start`
+- fix: remove double \n\n in attribute tag.
+- fix: can't parse header markdown which contain bad XML format (<, & or etc).
 - update XML document comment on command line options.
 
 ### 1.4.0
@@ -290,7 +336,9 @@ Change-Log
     -   [How to use](#how-to-use)
         -   [requirements](#requirements)
         -   [build and run](#build-and-run)
-        -   [Example output](#example-output)
+    -   [Example output](#example-output)
+        -   [1. this project output](#this-project-output)
+        -   [2. sample output](#sample-output)
     -   [Check latest release](#check-latest-release)
     -   [Please donate](#please-donate)
     -   [How it works](#how-it-works)

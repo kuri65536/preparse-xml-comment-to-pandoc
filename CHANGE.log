@@ -15,6 +15,7 @@ Change-Log
 - fix error with block_name contains '{' (String.Format expression)
 - fix: parse indent of `<remarks> <!-- some --> start` to ` start`
 - fix: remove double \n\n in attribute tag.
+- fix: can't parse header markdown which contain bad XML format (<, & or etc).
 - update XML document comment on command line options.
 
 ### 1.4.0

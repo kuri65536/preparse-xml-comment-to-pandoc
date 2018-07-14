@@ -92,7 +92,10 @@ public static class TextFile {
     }
 
     public static string print(string fmt, params object[] args) {
-        var src = String.Format(fmt, args);
+        var src = fmt;
+        if (args.Length > 0) {
+            src = String.Format(fmt, args);
+        }
         try {
             File.AppendAllText(fname, src + "\n");
         } catch (Exception) {
