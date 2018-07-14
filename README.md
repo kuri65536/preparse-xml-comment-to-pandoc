@@ -88,15 +88,13 @@ public class abc {
 -   use prepandoc.exe
 
 ``` {.bash}
-$ unzip prepandoc-cs1.3.0.zip
-$ git clone https://github.com/kuri65536/preparse-xml-comment-to-pandoc test
-$ cd test
-$ ../prepandoc . source.md README2.md
+$ unzip prepandoc-cs1.4.1.zip
+$ ./prepandoc.exe . a README2.md
 $ pandoc -o result.html README2.md
 $ browse result.html
 ```
 
--   then, you got a markdown file from C\# source
+-   then, you got a markdown file from C\# source and its html.
 
 ``` {.markdown}
 sample
