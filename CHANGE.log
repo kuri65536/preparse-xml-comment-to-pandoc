@@ -5,10 +5,16 @@ TODO
 - want: invoke pandoc with recommend options. (did not use Makefile for newbie)
 - parse indent of `<remarks> <!-- some --> start` to ` start`
 - want: indicates the block for class or method
+- want: improve format_file_name function to see option.
+- want: improve filter_file_name function to see optinos.
 
 
 Change-Log
 ---
+
+### 1.4.1
+- fix error with block_name contains '{' (String.Format expression)
+- update XML document comment on command line options.
 
 ### 1.4.0
 - versioning into message

@@ -66,7 +66,10 @@ public static class logging {
         if (lvl < __level__) {
             return;
         }
-        var msg = String.Format(fmt, args);
+        var msg = fmt;
+        if (args.Length > 0) {
+            msg = String.Format(fmt, args);
+        }
         Console.WriteLine(msg);
     }
 }
@@ -139,7 +142,17 @@ public class XmlParser {
 
         // reader.MoveToContent();
         // Parse the file and display each of the nodes.
-        while (reader.Read())  {
+        var ret = true;
+        while (ret) {
+            try {
+                ret = reader.Read();
+            } catch (Exception ex) {
+                logging.crit("parse.exception: {0}", ex.Message);
+                return;
+            }
+            if (!ret) {
+                break;
+            }
             var node = reader.NodeType;
             logging.verb("xml-reader... {0}", node);
             switch (node)  {
@@ -197,15 +210,21 @@ public class XmlParser {
 /// <summary> <!-- Options {{{1 --> parser class of the command line options
 /// and arguments.
 /// </summary>
+/// <remarks>
+/// ### Command-line arguments
+/// this program parse command line and then run.
+/// main arguments are the below 3.
+///
+/// 1. document root dirctory. : default `.`
+/// 2. header markdown file. : default `source.md`
+/// 3. output markdown file. : default `temp.md`
+///
+/// ### Command-line options
+///
+/// </remarks>
 public class Options {
     /// <summary> <!-- run {{{1 --> define the Mono.Options.OptionSet
     /// and parse the command line with it.
-    ///
-    /// then parse the 3 arguments
-    ///
-    /// 1. document root dirctory.
-    /// 2. header markdown file.
-    /// 3. output markdown file.
     /// </summary>
     public static bool run(
         String[] args, out string droot, out string ftop, out string fout
@@ -221,48 +240,88 @@ public class Options {
             "  header-file: markdown file for the document header",
             "  output-file: file name for markdown output",
             " [options]",
+            /// <remarks> option `-h` or `--help`
+            /// :   - output help message
+            /// </remarks>
             {"h|help", "output this help message.", v => {ret = 1;}},
+            /// <remarks> option `-v` or `--verbose`
+            /// :   - set the output log-level.
+            ///     - it is equivalent to change logging.__level__.
+            /// </remarks>
             {"v=|verbose=", "verbose level (0-99)", (int? v) => {
                 var l = v.HasValue ? v.Value: logging.__level__;
                 if (l < 0 || l > 99) {ret = 1;}
                 logging.__level__ = l;
              }},
+            /// <remarks> option `-b` or `--header`
+            /// :   - specify header markdown file before parse sources.
+            /// </remarks>
             {"b=|header=", "output markdown file before parse sources.",
                 (string v) =>{
                 _ftop = parse_string(v, "source.md");
                 msg += "\nspecified header file: " + _ftop;}},
+            /// <remarks> option `-o` or `--output`
+            /// :   - the file name of markdown output.
+            /// </remarks>
             {"o=|output=", "file name of the markdown output",
                 (string v) =>{
                 _fout = parse_string(v, "temp.md");
                 msg += "\nspecified output file: " + _fout;}},
+            /// <remarks> option `-e` or `--encoding`
+            /// :   - specify the input files encoding,
+            ///         all of source files open with this encoding.
+            ///     - this is equivalent to change `Config.encoding`
+            /// </remarks>
             {"e=|encoding=", "source file encoding.",
                 (string v) =>{
                 cfg.enc = v != null ? System.Text.Encoding.GetEncoding(v):
                                       cfg.enc;
                 msg += "\nspecified encoding: " + cfg.enc.ToString();}},
+            /// <remarks> option `-a` or `--attribute`
+            /// :   - specify the XML attribute name
+            ///     - this option use with `--article-tag` option
+            /// </remarks>
             {"a=|attribute=", "attribute name to extract document.",
                 (string v) =>{
                 cfg.attr_article = v != null ? v: cfg.attr_article;
                 msg += "\nspecified attirbute: " + cfg.attr_article;}},
+            /// <remarks> option `-c` or `--css`
+            /// :   - the embedded CSS file name in markdown.
+            /// </remarks>
             {"c=|css=", "CSS file name for markdown.",
                 (string v) =>{
                 cfg.css_file_name = v != null ? v: cfg.css_file_name;
                 msg += "\nspecified CSS: " + cfg.css_file_name;}},
+            /// <remarks> option `-E` or `--empty-block`
+            /// :   - enable/disable to output the empty blocks into markdown.
+            /// </remarks>
             {"E=|empty-block=", "output empty block.",
                 (string v) =>{
                 cfg.f_output_empty_block = parse_boolean(v, false);
                 msg += "\nspecified empty block: " +
                        cfg.f_output_empty_block.ToString();}},
+            /// <remarks> option `-O` or `--output-tags`
+            /// :   - tag-name to output into markdown.
+            /// </remarks>
             {"O=|output-tags=", "output tag-name.",
                 (string v) =>{
                 cfg.tags_output = parse_tags(v, cfg.tags_output);
                 msg += "\nspecified output tags: " +
                        String.Join(",", cfg.tags_output);}},
+            /// <remarks> option `-A` or `--article-tags`
+            /// :   - tag-name to output into markdown (with attributes).
+            ///     - this tag is not output without attribute,
+            ///         attribute name can be specified with `--attribute`
+            ///         option.
+            /// </remarks>
             {"A=|article-tags=", "output tag-name with attribute.",
                 (string v) =>{
                 cfg.tags_article = parse_tags(v, cfg.tags_article);
                 msg += "\nspecified output tags with attribute: " +
                        String.Join(",", cfg.tags_article);}},
+            /// <remarks> option `--version`
+            /// :   - output the version message and then exit.
+            /// </remarks>
             {"version", "output version string.", v => {
                 ret = 2;}}
         };

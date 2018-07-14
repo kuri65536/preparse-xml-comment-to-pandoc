@@ -429,20 +429,8 @@ public class Parser {
         }
     }
 
-    /// <summary> <!-- Main {{{1 -->
+    /// <summary> <!-- Main {{{1 --> the program start point.
     /// </summary>
-    /// <remarks>
-    /// command line
-    /// ----
-    /// main program: parse command line and run parse sources and xml.
-    ///
-    /// ### command line arguments
-    ///
-    /// 1. directory name to search C\# sources. (default: `.` )
-    /// 2. header markdown. (default: `README.md` )
-    /// 3. output markdown. (default: `temp.md` )
-    ///
-    /// </remarks>
     public static void Main(String[] args) {
         string droot, ftop, fout;
         if (Options.run(args, out droot, out ftop, out fout)) {
@@ -467,14 +455,8 @@ public class Parser {
         var p = new XmlParser();  // expat.ParserCreate();
         var parser = new Parser(p, fout);
         parser.dname_root = droot;
-        try {
-            var stm = new System.IO.StreamReader("temp.txt");
-            p.Parse(stm);  // , True);
-        } catch (Exception ex) {
-            Log.crit("parse.exception: {0}", ex.Message);
-            // can't do in Mono
-            // Log.dump_stack(ex.StackInfo.ToString());
-        }
+        var stm = new System.IO.StreamReader("temp.txt");
+        p.Parse(stm);  // , True);
         parser.close();
     }
 }

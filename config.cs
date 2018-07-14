@@ -22,32 +22,39 @@ namespace PrePandoc {
 ///
 /// </remarks>
 public class Config {
-    /// <summary a="1">: specify the input file encoding.
+    /// <summary a="1">:   - specify the input file encoding.
+    ///     - this can be override with `--encoding` option.
     /// </summary>
     public static System.Text.Encoding enc =
             System.Text.Encoding.GetEncoding("utf-8");
 
-    /// <summary a="1">: do not output the empty comment block to markdown.
+    /// <summary a="1">:   - do not output the empty comment block to markdown.
+    ///     - this can be override with `--empty-block` option.
     /// </summary>
     public static bool f_output_empty_block = false;
-    /// <summary a="1">: specify markdown CSS file name.
+    /// <summary a="1">:   - specify markdown CSS file name.
+    ///     - this can be override with `--css` option.
     /// </summary>
     public static string css_file_name = "swiss.css";
-    /// <summary a="1">: specify XML-tags to output markdown file.
+    /// <summary a="1">:   - specify XML-tags to output markdown file.
+    ///     - this can be override with `--output-tags` option.
     /// </summary>
     public static string[] tags_output = new[] {
         "remarks"};
     /// <summary a="1">
-    /// : output the tag which have attribute 'article' in `tag_article` .
+    /// :   - output the tag which have attribute specified in `attr_article` .
+    ///     - this can be override with `--article-tags` option.
     /// </summary>
     public static string[] tags_article = new[] {
         "summary"};
-    /// <summary a="1">: attribute name for `tags_article` .
+    /// <summary a="1">:   - attribute name for `tags_article` .
+    ///     - this can be override with `--attribute` option.
     /// </summary>
     public static string attr_article = "a";
 
     /// <summary a="1"><!-- format_block_head {{{1 -->
-    /// : function to format the block name in markdown
+    /// :   - function to format the block name in markdown.
+    ///      - this is hard code behavior, you can edit with rebuild this tool.
     /// </summary>
     public static string format_block_head(
         Dictionary<string, string> info
@@ -63,14 +70,16 @@ public class Config {
     }
 
     /// <summary a="1"><!-- format_file_name {{{1 -->
-    /// : function to format the file name in markdown
+    /// :   - function to format the file name in markdown.
+    ///      - this is hard code behavior, you can edit with rebuild this tool.
     /// </summary>
     public static string format_file_name(string name) {
         return "<!-- " + name + " -->\n";
     }
 
     /// <summary a="1"><!-- filter_file_name {{{1 -->
-    /// : function to specify the filtering of source file names.
+    /// :   - function to specify the filtering of source file names.
+    ///      - this is hard code behavior, you can edit with rebuild this tool.
     /// </summary>
     public static bool filter_file_name(string name) {
         if (!name.EndsWith(".cs")) {

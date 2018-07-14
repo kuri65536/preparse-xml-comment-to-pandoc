@@ -1,6 +1,6 @@
 
-bin_opt:=./Mono.Options.dll
-path_opt:=./Mono.Options.5.3.0.1
+bin_opt:=Mono.Options.dll
+path_opt:=Mono.Options.5.3.0.1
 
 install_options: $(bin_opt)
 

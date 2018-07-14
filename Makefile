@@ -32,8 +32,8 @@ src := prepandoc.cs config.cs common.cs versions.cs
 
 build: $(bin)
 
-$(bin): $(src)
-	mcs $(CS_OPTIONS) -out:$@ $(filter-out tag,$^)
+$(bin): $(src) $(bin_opt)
+	mcs $(CS_OPTIONS) -out:$@ $(filter-out $(bin_opt),$^)
 
 
 FC := $(pandoc_tmps)/template/template_meiryo.docx
